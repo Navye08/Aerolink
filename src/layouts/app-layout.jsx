@@ -1,6 +1,6 @@
 import Header from "@/components/header";
 import {Outlet} from "react-router-dom";
-import {Zap, Github} from "lucide-react";
+import {Zap} from "lucide-react";
 
 const AppLayout = () => {
   return (
@@ -22,17 +22,9 @@ const AppLayout = () => {
           </div>
 
           <div className="flex items-center gap-4 text-gray-400 text-xs">
-            <span>Built with React, Vite, Tailwind & Supabase</span>
+            <span>Engineered with React 18, Vite, Tailwind & Supabase</span>
             <span>•</span>
-            <a
-              href="https://github.com/piyush-eon/url-shortener"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-gray-200 flex items-center gap-1 transition-colors"
-            >
-              <Github className="h-3.5 w-3.5" />
-              <span>Tutorial Baseline by RoadsideCoder</span>
-            </a>
+            <span className="text-gray-500">MIT Open Source</span>
           </div>
         </div>
       </footer>
