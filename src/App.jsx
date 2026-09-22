@@ -4,6 +4,7 @@ import UrlProvider from "./context";
 
 import AppLayout from "./layouts/app-layout";
 import RequireAuth from "./components/require-auth";
+import RouteErrorBoundary from "./components/error-boundary";
 
 import RedirectLink from "./pages/redirect-link";
 import LandingPage from "./pages/landing";
@@ -14,6 +15,7 @@ import Auth from "./pages/auth";
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         path: "/",

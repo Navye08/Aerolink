@@ -1,14 +1,13 @@
 // Utility to format and export link analytics to CSV in the browser
 
 /**
- * Exports click event records to a downloadable CSV file.
+ * Converts click records to formatted CSV string.
  * @param {Array} clicks
- * @param {string} filename
+ * @returns {string}
  */
-export function exportClicksToCsv(clicks = [], filename = "aerolink-analytics.csv") {
-  if (!clicks || clicks.length === 0) {
-    alert("No click analytics data available to export.");
-    return;
+export function formatClicksToCsv(clicks = []) {
+  if (!clicks || !Array.isArray(clicks) || clicks.length === 0) {
+    return "";
   }
 
   const headers = [
@@ -37,15 +36,32 @@ export function exportClicksToCsv(clicks = [], filename = "aerolink-analytics.cs
     escapeCell(click.referrer || "Direct"),
   ]);
 
-  const csvContent =
-    "data:text/csv;charset=utf-8," +
-    [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+  return [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+}
 
-  const encodedUri = encodeURI(csvContent);
+/**
+ * Exports click event records to a downloadable CSV file.
+ * @param {Array} clicks
+ * @param {string} filename
+ */
+export function exportClicksToCsv(clicks = [], filename = "aerolink-analytics.csv") {
+  if (!clicks || !Array.isArray(clicks) || clicks.length === 0) {
+    if (typeof alert !== "undefined") {
+      alert("No click analytics data available to export.");
+    }
+    return;
+  }
+
+  const csvContent = formatClicksToCsv(clicks);
+  if (typeof document === "undefined") return;
+
+  const blob = new Blob([csvContent], {type: "text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
+  link.setAttribute("href", url);
   link.setAttribute("download", filename);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

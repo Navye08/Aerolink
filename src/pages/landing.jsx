@@ -10,15 +10,13 @@ import {
 } from "@/components/ui/accordion";
 import {UrlState} from "@/context";
 import {
-  Zap,
-  Shield,
+  ShieldCheck,
   Clock,
-  BarChart3,
   QrCode,
   ArrowRight,
-  Sparkles,
   Lock,
-  FileSpreadsheet,
+  CheckCircle2,
+  Globe,
 } from "lucide-react";
 import {validateUrl} from "@/lib/validators";
 
@@ -33,7 +31,7 @@ export default function LandingPage() {
     setUrlError("");
 
     if (!longUrl) {
-      setUrlError("Please enter a URL to shorten.");
+      setUrlError("Please enter a destination URL to shorten.");
       return;
     }
 
@@ -54,204 +52,309 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col items-center space-y-24 py-6">
       {/* 1. HERO SECTION */}
-      <section className="w-full max-w-4xl text-center flex flex-col items-center pt-8">
-        {/* Release / Tech Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-8 animate-fade-in">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Production-Ready URL Infrastructure & Analytics</span>
+      <section className="w-full max-w-4xl text-center flex flex-col items-center pt-10 sm:pt-16">
+        {/* Subtle Release Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border-subtle text-foreground text-xs font-medium mb-6 shadow-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+          <span className="text-muted-foreground">AeroLink Platform</span>
+          <span className="text-border-strong">•</span>
+          <span className="text-primary font-medium">SaaS Link Operations</span>
         </div>
 
         {/* Hero Title */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-          High-Performance Short Links. <br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300">
-            Deeper Real-Time Analytics.
+        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground mb-5 leading-[1.12]">
+          Short links with <br className="hidden sm:inline" />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-indigo-300">
+            more control.
           </span>
         </h1>
 
         {/* Subtitle */}
-        <p className="text-gray-400 text-base sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-          Create collision-resistant short URLs with built-in passcode protection,
-          dynamic expiration rules, instant QR code export, and privacy-preserving click telemetry.
+        <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto mb-8 leading-relaxed">
+          Create, protect, and understand every link from one workspace. Built with
+          cryptographic slugging, passcode gates, and privacy-preserving visitor telemetry.
         </p>
 
-        {/* Interactive URL Shortener Widget */}
+        {/* Interactive URL Shortener Input */}
         <form
           onSubmit={handleShorten}
-          className="w-full max-w-2xl bg-gray-900/80 border border-gray-800 rounded-2xl p-2 sm:p-3 shadow-2xl backdrop-blur flex flex-col sm:flex-row gap-2"
+          className="w-full max-w-2xl bg-surface border border-border-strong rounded-2xl p-2 sm:p-2.5 shadow-2xl flex flex-col sm:flex-row gap-2"
         >
           <div className="relative flex-1">
             <Input
               type="text"
-              placeholder="Paste your loooong link (e.g. https://github.com/profile/repo)"
+              placeholder="Paste a long destination URL (e.g. https://github.com/...)"
               value={longUrl}
               onChange={(e) => {
                 setLongUrl(e.target.value);
                 if (urlError) setUrlError("");
               }}
-              className="h-12 bg-gray-950/60 border-gray-800 text-sm pl-4 pr-4 rounded-xl focus-visible:ring-blue-500"
+              className="h-11 bg-surface-elevated border-border-subtle text-xs pl-3.5 pr-3.5 rounded-xl focus-visible:ring-primary text-foreground placeholder:text-muted-foreground/60"
             />
           </div>
           <Button
             type="submit"
-            className="h-12 px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-transform active:scale-95"
+            className="h-11 px-6 bg-primary hover:bg-blue-500 text-white font-medium text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 transition-transform active:scale-95"
           >
-            <span>Shorten Link</span>
-            <ArrowRight className="h-4 w-4" />
+            <span>Shorten link</span>
+            <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         </form>
 
         {urlError && (
-          <p className="text-xs text-red-400 mt-2 font-medium">{urlError}</p>
+          <p className="text-xs text-rose-400 mt-2 font-medium">{urlError}</p>
         )}
 
-        <div className="flex items-center gap-6 mt-8 text-xs text-gray-500">
-          <span className="flex items-center gap-1">
-            <Shield className="h-3.5 w-3.5 text-blue-400" /> Passcode Protection
+        <div className="flex items-center gap-6 mt-6 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Free forever tier
           </span>
-          <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-emerald-400" /> Expiration Rules
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Server-side security
           </span>
-          <span className="flex items-center gap-1">
-            <QrCode className="h-3.5 w-3.5 text-purple-400" /> Instant QR Studio
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="h-3.5 w-3.5 text-violet-400" /> Vector QR studio
           </span>
         </div>
       </section>
 
-      {/* 2. FEATURE MATRIX GRID */}
-      <section className="w-full max-w-6xl">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white mb-3">
-            Engineered for Modern Teams & Creators
+      {/* 2. AUTHENTIC DASHBOARD PREVIEW */}
+      <section id="analytics" className="w-full max-w-5xl px-2">
+        <div className="rounded-2xl border border-border-strong bg-surface p-2 shadow-2xl shadow-black/60 overflow-hidden">
+          {/* Mock Browser Header */}
+          <div className="px-4 py-2.5 border-b border-border-subtle flex items-center justify-between bg-surface-elevated/70 rounded-t-xl text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+              <span className="text-[11px] text-muted-foreground font-mono ml-2">
+                app.aerolink.in/dashboard
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>Telemetry Connected</span>
+            </div>
+          </div>
+
+          {/* Interactive UI Dashboard Preview */}
+          <div className="p-4 sm:p-6 bg-background space-y-4">
+            {/* Metric row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3 rounded-lg bg-surface border border-border-subtle">
+                <span className="text-[11px] text-muted-foreground block">Total Clicks</span>
+                <span className="text-lg font-bold font-mono text-foreground">12,840</span>
+              </div>
+              <div className="p-3 rounded-lg bg-surface border border-border-subtle">
+                <span className="text-[11px] text-muted-foreground block">Active Links</span>
+                <span className="text-lg font-bold font-mono text-emerald-400">18 / 20</span>
+              </div>
+              <div className="p-3 rounded-lg bg-surface border border-border-subtle">
+                <span className="text-[11px] text-muted-foreground block">Unique Visitors</span>
+                <span className="text-lg font-bold font-mono text-violet-400">9,412</span>
+              </div>
+              <div className="p-3 rounded-lg bg-surface border border-border-subtle">
+                <span className="text-[11px] text-muted-foreground block">Clicks Today</span>
+                <span className="text-lg font-bold font-mono text-amber-400">428</span>
+              </div>
+            </div>
+
+            {/* Preview link row */}
+            <div className="p-3.5 bg-surface border border-border-subtle rounded-xl flex items-center justify-between text-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <Globe className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <div className="font-semibold text-foreground flex items-center gap-2">
+                    <span>Developer Portfolio 2026</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                      Active
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 font-medium">
+                      Protected
+                    </span>
+                  </div>
+                  <span className="font-mono text-primary text-[11px]">
+                    aerolink.in/portfolio
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="font-mono font-semibold text-foreground text-xs">
+                  3,124 <span className="font-sans font-normal text-muted-foreground">clicks</span>
+                </span>
+                <Button
+                  size="sm"
+                  onClick={() => navigate("/dashboard")}
+                  className="h-7 text-xs bg-surface-elevated hover:bg-surface border border-border-subtle text-foreground"
+                >
+                  Inspect
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. PRODUCT CAPABILITIES (VARIED LAYOUT BENTO GRID) */}
+      <section id="features" className="w-full max-w-5xl space-y-8">
+        <div className="text-center max-w-lg mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+            Engineered for precision and control
           </h2>
-          <p className="text-gray-400 text-sm max-w-xl mx-auto">
-            Beyond basic redirects. AeroLink provides the control, security, and metrics needed for production links.
+          <p className="text-xs text-muted-foreground mt-2">
+            Every feature is designed to give you complete governance over routing, security, and attribution.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <div className="p-6 rounded-2xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-all space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-              <Zap className="h-5 w-5" />
-            </div>
-            <h3 className="text-lg font-bold text-white">Cryptographic Base62 IDs</h3>
-            <p className="text-gray-400 text-xs leading-relaxed">
-              Powered by native Web Crypto API yielding over 3.5 trillion unique combinations with automatic database collision retry.
-            </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="p-6 rounded-2xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-all space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Card 1: Passcode Protection */}
+          <div className="p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4">
+            <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
               <Lock className="h-5 w-5" />
             </div>
-            <h3 className="text-lg font-bold text-white">Passcode Protected Links</h3>
-            <p className="text-gray-400 text-xs leading-relaxed">
-              Require visitors to enter a passcode before redirecting. Password hashes are verified server-side and never exposed to the client.
-            </p>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-1">
+                Passcode Protected Links
+              </h3>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Require a password before redirecting visitors. Verified server-side via PostgreSQL RPC so password hashes are never exposed.
+              </p>
+            </div>
+            <div className="text-[11px] font-mono text-violet-400 bg-violet-500/10 p-2 rounded-lg border border-violet-500/20">
+              RPC verify_link_password()
+            </div>
           </div>
 
-          {/* Card 3 */}
-          <div className="p-6 rounded-2xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-all space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          {/* Card 2: Lifecycle Governance */}
+          <div className="p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
               <Clock className="h-5 w-5" />
             </div>
-            <h3 className="text-lg font-bold text-white">Expiration & Click Caps</h3>
-            <p className="text-gray-400 text-xs leading-relaxed">
-              Set automated link expiration dates or maximum click limits. Once reached, visitors see a customized unavailable message.
-            </p>
-          </div>
-
-          {/* Card 4 */}
-          <div className="p-6 rounded-2xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-all space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-              <BarChart3 className="h-5 w-5" />
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-1">
+                Expiration Dates & Quota Caps
+              </h3>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Schedule automatic link expiration timestamps or limit total allowed visits. The gateway displays a clean paused screen once reached.
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-white">Privacy-First Telemetry</h3>
-            <p className="text-gray-400 text-xs leading-relaxed">
-              Track devices, operating systems, browsers, top cities, and countries without storing raw IP addresses (GDPR/CCPA friendly).
-            </p>
+            <div className="text-[11px] font-mono text-amber-400 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
+              Cap: 50 visits • ISO timestamps
+            </div>
           </div>
 
-          {/* Card 5 */}
-          <div className="p-6 rounded-2xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-all space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+          {/* Card 3: Client-Side QR Studio */}
+          <div className="p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
               <QrCode className="h-5 w-5" />
             </div>
-            <h3 className="text-lg font-bold text-white">Client-Side QR Studio</h3>
-            <p className="text-gray-400 text-xs leading-relaxed">
-              Generate crisp QR codes instantly in browser memory without cloud storage delays. Export high-res PNGs up to 400px.
-            </p>
-          </div>
-
-          {/* Card 6 */}
-          <div className="p-6 rounded-2xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-all space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
-              <FileSpreadsheet className="h-5 w-5" />
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-1">
+                Vector QR Code Studio
+              </h3>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Render crisp QR assets in-browser without cloud storage upload latency. Download PNGs in 150px, 250px, or 400px resolutions.
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-white">Time Filters & CSV Export</h3>
-            <p className="text-gray-400 text-xs leading-relaxed">
-              Isolate metrics by Today, 7 Days, or 30 Days. Download clean CSV datasets for custom reporting in Excel or Google Sheets.
-            </p>
+            <div className="text-[11px] font-mono text-primary bg-primary/10 p-2 rounded-lg border border-primary/20">
+              150px • 250px • 400px PNG
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 3. FAQ ACCORDION SECTION */}
-      <section className="w-full max-w-3xl">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-2">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Everything you need to know about AeroLink URL infrastructure.
+      {/* 4. SECURITY & PRIVACY SECTION */}
+      <section id="security" className="w-full max-w-5xl p-6 sm:p-8 rounded-2xl bg-surface border border-border-subtle flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="space-y-2 max-w-lg">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-medium border border-emerald-500/20">
+            <ShieldCheck className="h-3 w-3" />
+            <span>GDPR-Compliant Telemetry</span>
+          </div>
+          <h3 className="text-lg sm:text-xl font-bold text-foreground">
+            Privacy-first click attribution
+          </h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            AeroLink does not store raw visitor IP addresses. Unique visitors are calculated using an irreversible, salted cryptographic hash (`SHA256(IP + UserAgent)`), protecting visitor confidentiality while delivering rich engagement metrics.
           </p>
         </div>
 
-        <Accordion type="multiple" className="w-full divide-y divide-gray-800 border-t border-b border-gray-800">
-          <AccordionItem value="faq-1" className="border-b-0 py-2">
-            <AccordionTrigger className="text-sm font-semibold hover:no-underline text-gray-200 hover:text-white">
+        <div className="flex flex-col gap-2 w-full md:w-auto">
+          <Button
+            onClick={() => navigate("/auth")}
+            className="bg-primary hover:bg-blue-500 text-white text-xs font-medium h-9 px-5 shadow-sm shadow-blue-500/25"
+          >
+            Create your account
+          </Button>
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-center text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
+          >
+            View GitHub architecture
+          </a>
+        </div>
+      </section>
+
+      {/* 5. FAQ ACCORDION SECTION */}
+      <section id="faq" className="w-full max-w-3xl space-y-6">
+        <div className="text-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Common questions about AeroLink routing, security, and privacy.
+          </p>
+        </div>
+
+        <Accordion
+          type="multiple"
+          className="w-full divide-y divide-border-subtle border-t border-b border-border-subtle"
+        >
+          <AccordionItem value="faq-1" className="border-b-0 py-1">
+            <AccordionTrigger className="text-xs font-semibold text-foreground hover:text-primary">
               How does AeroLink prevent short-code collisions?
             </AccordionTrigger>
-            <AccordionContent className="text-xs text-gray-400 leading-relaxed">
-              Unlike tutorial projects that use Math.random(), AeroLink uses a 7-character base62 generator backed by crypto.getRandomValues. The database enforces a UNIQUE constraint and our service layer automatically retries on any collision.
+            <AccordionContent className="text-xs text-muted-foreground leading-relaxed">
+              AeroLink generates 7-character Base62 slugs using the native Web Crypto API (`crypto.getRandomValues`), producing over 3.5 trillion possible permutations. The database enforces uniqueness, and the service layer includes automated collision retry handling.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="faq-2" className="border-b-0 py-2">
-            <AccordionTrigger className="text-sm font-semibold hover:no-underline text-gray-200 hover:text-white">
-              How are password-protected links secured?
+          <AccordionItem value="faq-2" className="border-b-0 py-1">
+            <AccordionTrigger className="text-xs font-semibold text-foreground hover:text-primary">
+              How does password verification work without exposing hashes?
             </AccordionTrigger>
-            <AccordionContent className="text-xs text-gray-400 leading-relaxed">
-              Password hashes are never stored in plaintext and are never exposed to client-side queries. Passcodes are hashed with SHA-256 and checked server-side using a PostgreSQL security function.
+            <AccordionContent className="text-xs text-muted-foreground leading-relaxed">
+              When a visitor enters a passcode, the client hashes it with SHA-256 and calls the PostgreSQL function `verify_link_password` using `SECURITY DEFINER` privileges. Only a boolean result crosses the network; the database hash is never sent to the client browser.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="faq-3" className="border-b-0 py-2">
-            <AccordionTrigger className="text-sm font-semibold hover:no-underline text-gray-200 hover:text-white">
-              Is visitor tracking privacy-compliant?
+          <AccordionItem value="faq-3" className="border-b-0 py-1">
+            <AccordionTrigger className="text-xs font-semibold text-foreground hover:text-primary">
+              Can I export my telemetry data?
             </AccordionTrigger>
-            <AccordionContent className="text-xs text-gray-400 leading-relaxed">
-              Yes. AeroLink does not store raw visitor IP addresses in the database. Unique visitors are calculated using an irreversible, salted cryptographic hash, ensuring compliance with privacy standards like GDPR.
+            <AccordionContent className="text-xs text-muted-foreground leading-relaxed">
+              Yes. Both the individual link analytics view and the global workspace dashboard feature one-click CSV export, allowing you to download timestamped click records for reporting in Excel or BI tools.
             </AccordionContent>
           </AccordionItem>
         </Accordion>
       </section>
 
-      {/* 4. BOTTOM CALL-TO-ACTION */}
-      <section className="w-full max-w-4xl p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-blue-900/40 via-gray-900 to-blue-950/40 border border-blue-500/20 text-center flex flex-col items-center">
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-white mb-4">
-          Ready to supercharge your links?
+      {/* 6. CONCISE FINAL CTA */}
+      <section className="w-full max-w-3xl p-8 rounded-2xl bg-surface border border-border-strong text-center flex flex-col items-center space-y-3">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+          Ready to manage your links with precision?
         </h2>
-        <p className="text-gray-300 text-sm sm:text-base max-w-lg mb-8 leading-relaxed">
-          Create your account in seconds and unlock custom aliases, deep analytics, and link protection tools.
+        <p className="text-xs text-muted-foreground max-w-md leading-relaxed">
+          Join thousands of developers and creators using AeroLink for fast, protected, and insightful short URLs.
         </p>
         <Button
           onClick={() => navigate("/auth")}
-          className="h-12 px-8 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-xl shadow-blue-500/20 text-sm"
+          className="h-10 px-6 bg-primary hover:bg-blue-500 text-white text-xs font-medium rounded-xl shadow-md shadow-blue-500/25 mt-2"
         >
-          Get Started Now
+          Start shortening links
         </Button>
       </section>
     </div>

@@ -1,5 +1,6 @@
 import {describe, it, expect} from "vitest";
-import {aggregateAnalytics} from "@/services/analyticsService";
+import {aggregateAnalytics, getClicksForUrls} from "@/services/analyticsService";
+import {formatClicksToCsv} from "@/lib/exportCsv";
 
 describe("aggregateAnalytics", () => {
   it("should return clean default metrics when given empty or null clicks", () => {
@@ -186,5 +187,116 @@ describe("aggregateAnalytics", () => {
     const res = aggregateAnalytics(mockClicks, "all");
     expect(res.totalClicks).toBe(3);
     expect(res.uniqueVisitors).toBe(2); // Toronto + Vancouver
+  });
+
+  it("should return timeSeries in chronological order (oldest to newest)", () => {
+    const mockClicks = [
+      {
+        created_at: new Date("2026-03-15T12:00:00Z").toISOString(),
+        device: "desktop",
+      },
+      {
+        created_at: new Date("2026-03-10T08:00:00Z").toISOString(),
+        device: "desktop",
+      },
+      {
+        created_at: new Date("2026-03-20T16:00:00Z").toISOString(),
+        device: "mobile",
+      },
+      {
+        created_at: new Date("2026-03-10T14:00:00Z").toISOString(),
+        device: "desktop",
+      },
+    ];
+
+    const res = aggregateAnalytics(mockClicks, "all");
+    expect(res.timeSeries.length).toBe(3);
+    expect(res.timeSeries[0].date).toBe(
+      new Date("2026-03-10T08:00:00Z").toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    );
+    expect(res.timeSeries[0].clicks).toBe(2);
+
+    expect(res.timeSeries[1].date).toBe(
+      new Date("2026-03-15T12:00:00Z").toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    );
+    expect(res.timeSeries[1].clicks).toBe(1);
+
+    expect(res.timeSeries[2].date).toBe(
+      new Date("2026-03-20T16:00:00Z").toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    );
+    expect(res.timeSeries[2].clicks).toBe(1);
+  });
+
+  it("should handle clicks with missing or invalid created_at dates gracefully", () => {
+    const mockClicks = [
+      {
+        created_at: "not-a-valid-date",
+        device: "desktop",
+      },
+      {
+        created_at: null,
+        device: "mobile",
+      },
+      {
+        created_at: new Date("2026-03-20T16:00:00Z").toISOString(),
+        device: "desktop",
+      },
+    ];
+
+    expect(() => aggregateAnalytics(mockClicks, "all")).not.toThrow();
+    const res = aggregateAnalytics(mockClicks, "all");
+    expect(res.totalClicks).toBe(3);
+    expect(res.timeSeries.length).toBeGreaterThan(0);
+  });
+});
+
+describe("getClicksForUrls", () => {
+  it("should return empty array when given non-array inputs like empty object, null, or undefined", async () => {
+    const resObj = await getClicksForUrls({});
+    expect(resObj).toEqual([]);
+
+    const resNull = await getClicksForUrls(null);
+    expect(resNull).toEqual([]);
+
+    const resEmpty = await getClicksForUrls([]);
+    expect(resEmpty).toEqual([]);
+  });
+});
+
+describe("formatClicksToCsv", () => {
+  it("should return empty string when clicks array is empty or non-array", () => {
+    expect(formatClicksToCsv([])).toBe("");
+    expect(formatClicksToCsv(null)).toBe("");
+    expect(formatClicksToCsv({})).toBe("");
+  });
+
+  it("should format click rows and properly escape double quotes and commas", () => {
+    const clicks = [
+      {
+        created_at: "2026-03-20T10:00:00Z",
+        country: "United States",
+        city: 'New "York" City',
+        device: "desktop",
+        browser: "Chrome, Version 120",
+        os: "Windows",
+        referrer: "Direct",
+      },
+    ];
+
+    const csv = formatClicksToCsv(clicks);
+    const lines = csv.split("\n");
+    expect(lines.length).toBe(2);
+    expect(lines[0]).toContain("Timestamp (UTC)");
+    expect(lines[1]).toContain('"New ""York"" City"');
+    expect(lines[1]).toContain('"Chrome, Version 120"');
   });
 });

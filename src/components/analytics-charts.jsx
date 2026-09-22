@@ -8,72 +8,91 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {
-  Globe2,
+  Globe,
   Smartphone,
   Compass,
   Laptop,
   ArrowUpRight,
   Activity,
+  Layers,
 } from "lucide-react";
 
 const DEVICE_COLORS = {
-  Desktop: "#3B82F6", // blue-500
-  Mobile: "#10B981",  // emerald-500
-  Tablet: "#F59E0B",  // amber-500
+  Desktop: "#3B82F6", // electric blue
+  Mobile: "#10B981",  // emerald
+  Tablet: "#F59E0B",  // amber
 };
 
-const FALLBACK_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"];
+const PALETTE = ["#3B82F6", "#06B6D4", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899"];
+
+// Custom Dark Tooltip
+const CustomChartTooltip = ({active, payload, label}) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-surface-elevated border border-border-strong rounded-lg p-2.5 shadow-xl text-xs space-y-1">
+        <p className="font-semibold text-foreground">{label}</p>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-primary" />
+          <span className="text-muted-foreground">Clicks:</span>
+          <span className="font-mono font-bold text-foreground tabular-nums">
+            {payload[0].value.toLocaleString()}
+          </span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 export function ClickTrendChart({timeSeries = []}) {
   if (!timeSeries || timeSeries.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-500 text-sm">
-        No click activity recorded in this time range.
+      <div className="h-64 flex flex-col items-center justify-center text-muted-foreground text-xs border border-dashed border-border-subtle rounded-xl bg-surface/30">
+        <Activity className="h-6 w-6 text-muted-foreground/40 mb-2" />
+        <span>No click activity recorded in this time range.</span>
       </div>
     );
   }
 
   return (
-    <div className="h-72 w-full pt-4">
+    <div className="h-64 w-full pt-2">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={timeSeries} margin={{top: 10, right: 10, left: -20, bottom: 0}}>
+        <AreaChart
+          data={timeSeries}
+          margin={{top: 10, right: 10, left: -20, bottom: 0}}
+        >
           <defs>
             <linearGradient id="clicksGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4} />
-              <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+              <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.0} />
             </linearGradient>
           </defs>
+          <CartesianGrid stroke="#1e2638" strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="date"
             stroke="#64748B"
-            fontSize={12}
+            fontSize={11}
             tickLine={false}
-            axisLine={{stroke: "#334155"}}
+            axisLine={{stroke: "#1e2638"}}
+            fontFamily="monospace"
           />
           <YAxis
             stroke="#64748B"
-            fontSize={12}
+            fontSize={11}
             tickLine={false}
-            axisLine={{stroke: "#334155"}}
+            axisLine={{stroke: "#1e2638"}}
             allowDecimals={false}
+            fontFamily="monospace"
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#0F172A",
-              borderColor: "#334155",
-              borderRadius: "8px",
-              color: "#F8FAFC",
-              fontSize: "12px",
-            }}
-          />
+          <Tooltip content={<CustomChartTooltip />} />
           <Area
             type="monotone"
             dataKey="clicks"
             stroke="#3B82F6"
-            strokeWidth={2.5}
+            strokeWidth={2}
             fillOpacity={1}
             fill="url(#clicksGradient)"
           />
@@ -86,53 +105,65 @@ export function ClickTrendChart({timeSeries = []}) {
 export function DeviceDonutChart({devices = []}) {
   if (!devices || devices.length === 0) {
     return (
-      <div className="h-56 flex items-center justify-center text-gray-500 text-sm">
-        No device data recorded.
+      <div className="h-52 flex flex-col items-center justify-center text-muted-foreground text-xs border border-dashed border-border-subtle rounded-xl bg-surface/30">
+        <Smartphone className="h-5 w-5 text-muted-foreground/40 mb-1.5" />
+        <span>No device telemetry yet</span>
       </div>
     );
   }
 
+  const total = devices.reduce((sum, d) => sum + (d.value || 0), 0);
+
   return (
-    <div className="h-56 w-full flex flex-col items-center justify-center">
-      <ResponsiveContainer width="100%" height={160}>
+    <div className="h-52 w-full flex flex-col items-center justify-center">
+      <ResponsiveContainer width="100%" height={140}>
         <PieChart>
           <Pie
             data={devices}
-            innerRadius={45}
-            outerRadius={70}
-            paddingAngle={4}
+            innerRadius={42}
+            outerRadius={62}
+            paddingAngle={3}
             dataKey="value"
           >
             {devices.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={DEVICE_COLORS[entry.name] || FALLBACK_COLORS[index % FALLBACK_COLORS.length]}
+                fill={DEVICE_COLORS[entry.name] || PALETTE[index % PALETTE.length]}
+                stroke="#111620"
+                strokeWidth={2}
               />
             ))}
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: "#0F172A",
-              borderColor: "#334155",
+              backgroundColor: "#161c28",
+              borderColor: "#2b364e",
               borderRadius: "8px",
+              color: "#f8fafc",
               fontSize: "12px",
             }}
           />
         </PieChart>
       </ResponsiveContainer>
-      <div className="flex gap-4 mt-2">
-        {devices.map((d, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-xs text-gray-300">
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{
-                backgroundColor:
-                  DEVICE_COLORS[d.name] || FALLBACK_COLORS[i % FALLBACK_COLORS.length],
-              }}
-            />
-            <span>{d.name}: {d.value}</span>
-          </div>
-        ))}
+
+      {/* Compact Legend with Percentages */}
+      <div className="flex flex-wrap justify-center gap-3 mt-1">
+        {devices.map((d, i) => {
+          const pct = total > 0 ? Math.round((d.value / total) * 100) : 0;
+          return (
+            <div key={i} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{
+                  backgroundColor:
+                    DEVICE_COLORS[d.name] || PALETTE[i % PALETTE.length],
+                }}
+              />
+              <span className="text-foreground font-medium">{d.name}</span>
+              <span className="font-mono text-[10px] text-muted-foreground">({pct}%)</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -141,87 +172,89 @@ export function DeviceDonutChart({devices = []}) {
 export function HorizontalBarList({title, icon: Icon, items = [], labelKey, valueKey}) {
   if (!items || items.length === 0) {
     return (
-      <Card className="bg-gray-900 border-gray-800">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2 text-gray-300">
-            {Icon && <Icon className="h-4 w-4 text-blue-400" />}
-            {title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-xs text-gray-500 py-6 text-center">No data available yet</div>
-        </CardContent>
-      </Card>
+      <div className="p-4 bg-surface border border-border-subtle rounded-xl space-y-2">
+        <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+          {Icon && <Icon className="h-3.5 w-3.5 text-primary" />}
+          <span>{title}</span>
+        </div>
+        <div className="text-[11px] text-muted-foreground py-6 text-center">
+          No data recorded
+        </div>
+      </div>
     );
   }
 
   const maxVal = Math.max(...items.map((it) => it[valueKey] || 1), 1);
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold flex items-center gap-2 text-gray-300">
-          {Icon && <Icon className="h-4 w-4 text-blue-400" />}
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <div className="p-4 bg-surface border border-border-subtle rounded-xl space-y-3">
+      <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="h-3.5 w-3.5 text-primary" />}
+          <span>{title}</span>
+        </div>
+        <span className="text-[10px] text-muted-foreground font-mono font-normal">Count</span>
+      </div>
+
+      <div className="space-y-2">
         {items.map((item, idx) => {
           const percentage = Math.round(((item[valueKey] || 0) / maxVal) * 100);
           return (
             <div key={idx} className="space-y-1">
-              <div className="flex justify-between text-xs font-medium">
-                <span className="text-gray-300 truncate max-w-[180px]">
+              <div className="flex justify-between text-xs">
+                <span className="text-foreground/90 truncate max-w-[170px] text-[11px]">
                   {item[labelKey] || "Unknown"}
                 </span>
-                <span className="text-gray-400">{item[valueKey]}</span>
+                <span className="font-mono text-muted-foreground text-[11px] tabular-nums">
+                  {item[valueKey]}
+                </span>
               </div>
-              <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-1.5 w-full bg-surface-elevated rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                  className="h-full bg-primary rounded-full transition-all duration-500"
                   style={{width: `${percentage}%`}}
                 />
               </div>
             </div>
           );
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
 export function RecentActivityStream({recentClicks = []}) {
   if (!recentClicks || recentClicks.length === 0) {
     return (
-      <div className="text-center py-8 text-xs text-gray-500">
+      <div className="text-center py-8 text-xs text-muted-foreground">
         No recent click activity recorded.
       </div>
     );
   }
 
   return (
-    <div className="divide-y divide-gray-800">
+    <div className="divide-y divide-border-subtle">
       {recentClicks.map((click, idx) => (
         <div key={idx} className="py-2.5 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-3">
-            <span className="p-1.5 rounded-md bg-gray-800 text-gray-400">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="w-7 h-7 rounded-lg bg-surface-elevated border border-border-subtle flex items-center justify-center text-muted-foreground flex-shrink-0">
               {click.device === "mobile" ? (
-                <Smartphone className="h-3.5 w-3.5" />
+                <Smartphone className="h-3.5 w-3.5 text-emerald-400" />
               ) : (
-                <Laptop className="h-3.5 w-3.5" />
+                <Laptop className="h-3.5 w-3.5 text-primary" />
               )}
             </span>
-            <div>
-              <div className="text-gray-200 font-medium">
+            <div className="min-w-0">
+              <div className="text-foreground font-medium text-xs truncate">
                 {click.city && click.city !== "Unknown" ? `${click.city}, ` : ""}
-                {click.country || "Unknown Location"}
+                {click.country || "Direct visitor"}
               </div>
-              <div className="text-[11px] text-gray-500">
-                {click.browser || "Browser"} on {click.os || "OS"} • via {click.referrer || "Direct"}
+              <div className="text-[10px] text-muted-foreground truncate">
+                {click.browser || "Browser"} • {click.os || "OS"} • via {click.referrer || "Direct"}
               </div>
             </div>
           </div>
-          <span className="text-gray-400 text-[11px]">
+          <span className="text-muted-foreground text-[10px] font-mono flex-shrink-0 pl-2">
             {new Date(click.created_at).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -246,34 +279,37 @@ export function AnalyticsDashboardView({analyticsData}) {
   } = analyticsData;
 
   return (
-    <div className="space-y-6">
-      {/* Click Trend Over Time */}
-      <Card className="bg-gray-900 border-gray-800">
-        <CardHeader>
-          <CardTitle className="text-base font-bold flex items-center gap-2 text-white">
-            <Activity className="h-5 w-5 text-blue-400" />
-            Click Velocity Over Time
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ClickTrendChart timeSeries={timeSeries} />
-        </CardContent>
-      </Card>
+    <div className="space-y-5">
+      {/* 1. Click Velocity Over Time */}
+      <div className="p-5 bg-surface border border-border-subtle rounded-xl space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+              <Activity className="h-4 w-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold text-foreground">
+                Click Velocity Over Time
+              </h4>
+              <p className="text-[11px] text-muted-foreground">
+                Timeseries volume across selected date range
+              </p>
+            </div>
+          </div>
+        </div>
+        <ClickTrendChart timeSeries={timeSeries} />
+      </div>
 
-      {/* Grid of Breakdowns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 2. Device, Browser, OS, Referrers Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Device Breakdown */}
-        <Card className="bg-gray-900 border-gray-800">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-gray-300">
-              <Smartphone className="h-4 w-4 text-blue-400" />
-              Device Categories
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <DeviceDonutChart devices={devices} />
-          </CardContent>
-        </Card>
+        <div className="p-4 bg-surface border border-border-subtle rounded-xl space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+            <Smartphone className="h-3.5 w-3.5 text-primary" />
+            <span>Device Categories</span>
+          </div>
+          <DeviceDonutChart devices={devices} />
+        </div>
 
         {/* Top Browsers */}
         <HorizontalBarList
@@ -284,7 +320,7 @@ export function AnalyticsDashboardView({analyticsData}) {
           valueKey="count"
         />
 
-        {/* Top Operating Systems */}
+        {/* Operating Systems */}
         <HorizontalBarList
           title="Operating Systems"
           icon={Laptop}
@@ -293,7 +329,7 @@ export function AnalyticsDashboardView({analyticsData}) {
           valueKey="count"
         />
 
-        {/* Top Referrers */}
+        {/* Referrers */}
         <HorizontalBarList
           title="Top Referrers"
           icon={ArrowUpRight}
@@ -303,11 +339,11 @@ export function AnalyticsDashboardView({analyticsData}) {
         />
       </div>
 
-      {/* Geo Locations & Live Stream */}
+      {/* 3. Geographic Intelligence & Live Activity Stream */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <HorizontalBarList
           title="Top Countries"
-          icon={Globe2}
+          icon={Globe}
           items={topCountries}
           labelKey="country"
           valueKey="count"
@@ -315,24 +351,20 @@ export function AnalyticsDashboardView({analyticsData}) {
 
         <HorizontalBarList
           title="Top Cities"
-          icon={Globe2}
+          icon={Globe}
           items={topCities}
           labelKey="city"
           valueKey="count"
         />
 
         {/* Live Click Stream */}
-        <Card className="bg-gray-900 border-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-gray-300">
-              <Activity className="h-4 w-4 text-emerald-400" />
-              Recent Click Stream
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RecentActivityStream recentClicks={recentClicks} />
-          </CardContent>
-        </Card>
+        <div className="p-4 bg-surface border border-border-subtle rounded-xl space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+            <Layers className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Recent Click Stream</span>
+          </div>
+          <RecentActivityStream recentClicks={recentClicks} />
+        </div>
       </div>
     </div>
   );

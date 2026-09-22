@@ -83,12 +83,13 @@ export async function resolveLinkByAlias(alias) {
  */
 export async function verifyLinkPassword(urlId, inputPassword) {
   if (!urlId || !inputPassword) return false;
+  const trimmed = typeof inputPassword === "string" ? inputPassword.trim() : inputPassword;
 
   // Try PostgreSQL RPC function first
   try {
     const {data: isValid, error} = await supabase.rpc("verify_link_password", {
       p_url_id: urlId,
-      p_password: inputPassword,
+      p_password: trimmed,
     });
 
     if (!error && typeof isValid === "boolean") {
@@ -99,14 +100,20 @@ export async function verifyLinkPassword(urlId, inputPassword) {
   }
 
   // Fallback check (for mock client or standard client)
-  const hashedInput = await hashPassword(inputPassword);
+  const hashedTrimmed = await hashPassword(trimmed);
+  const hashedRaw = await hashPassword(inputPassword);
   const {data} = await supabase
     .from("urls")
     .select("password_hash")
     .eq("id", urlId)
     .single();
 
-  return data?.password_hash === hashedInput || data?.password_hash === inputPassword;
+  return (
+    data?.password_hash === hashedTrimmed ||
+    data?.password_hash === hashedRaw ||
+    data?.password_hash === trimmed ||
+    data?.password_hash === inputPassword
+  );
 }
 
 /**

@@ -1,30 +1,23 @@
-import {Input} from "./ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import {Button} from "./ui/button";
+import {useState, useEffect} from "react";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import {useEffect, useState} from "react";
 import * as Yup from "yup";
-import Error from "./error";
-import {login} from "@/db/apiAuth";
 import {BeatLoader} from "react-spinners";
+import {Sparkles, Eye, EyeOff} from "lucide-react";
+import {Input} from "./ui/input";
+import {Button} from "./ui/button";
+import ErrorAlert from "./error";
+import {login} from "@/db/apiAuth";
 import useFetch from "@/hooks/use-fetch";
 import {UrlState} from "@/context";
 import {isMockMode} from "@/db/supabase";
 
-const Login = () => {
+export default function Login({onSwitchToSignup}) {
   let [searchParams] = useSearchParams();
   const longLink = searchParams.get("createNew");
-
   const navigate = useNavigate();
 
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -36,25 +29,32 @@ const Login = () => {
       ...prevState,
       [name]: value,
     }));
+    if (errors[name]) {
+      setErrors((prev) => ({...prev, [name]: null}));
+    }
   };
 
   const {loading, error, fn: fnLogin, data} = useFetch(login, formData);
   const {fetchUser} = UrlState();
 
   useEffect(() => {
-    if (error === null && data) {
-      fetchUser();
-      navigate(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
-    }
+    const handleAuthRedirect = async () => {
+      if (error === null && data) {
+        await fetchUser();
+        navigate(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
+      }
+    };
+    handleAuthRedirect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, data]);
 
-  const handleLogin = async () => {
-    setErrors([]);
+  const handleLogin = async (e) => {
+    e?.preventDefault();
+    setErrors({});
     try {
       const schema = Yup.object().shape({
         email: Yup.string()
-          .email("Invalid email")
+          .email("Please enter a valid email address")
           .required("Email is required"),
         password: Yup.string()
           .min(6, "Password must be at least 6 characters")
@@ -65,25 +65,23 @@ const Login = () => {
       await fnLogin();
     } catch (e) {
       const newErrors = {};
-
       e?.inner?.forEach((err) => {
         newErrors[err.path] = err.message;
       });
-
       setErrors(newErrors);
     }
   };
 
   const handleDemoLogin = async () => {
     const demoCredentials = {
-      email: "demo@trimrr.in",
+      email: "demo@aerolink.in",
       password: "password123",
     };
     setFormData(demoCredentials);
     setErrors({});
     try {
       await login(demoCredentials);
-      fetchUser();
+      await fetchUser();
       navigate(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
     } catch (err) {
       console.error("Demo login error:", err);
@@ -91,69 +89,119 @@ const Login = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>
-          to your account if you already have one
-        </CardDescription>
-        {isMockMode && (
-          <div className="p-3 text-xs bg-amber-500/10 border border-amber-500/20 rounded text-amber-300">
-            <span className="font-semibold block mb-0.5">💡 Demo Mode Active</span>
-            <span>
-              Log in with any email and 6+ character password, or click <strong>Quick Demo Login</strong>.
-            </span>
+    <form onSubmit={handleLogin} className="space-y-4">
+      {isMockMode && (
+        <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
+            <span>Demo Mode Active</span>
           </div>
-        )}
-        {error && (
-          <div className="space-y-1">
-            <Error message={error.message} />
-            {error.message?.toLowerCase().includes("email not confirmed") && (
-              <div className="text-xs text-amber-300 mt-1 bg-amber-500/10 p-2 rounded border border-amber-500/20 leading-relaxed">
-                💡 <strong>Email confirmation is required by Supabase.</strong> Either check your inbox, or disable email confirmation in your Supabase Dashboard: <strong>Authentication &gt; Providers &gt; Email &gt; Confirm email (Toggle OFF)</strong>.
-              </div>
-            )}
-          </div>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="space-y-1">
-          <Input
-            name="email"
-            type="email"
-            placeholder="Enter Email"
-            value={formData.email}
-            onChange={handleInputChange}
-          />
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            className="text-[11px] font-semibold text-amber-300 hover:underline"
+          >
+            Quick 1-Click Login ⚡
+          </button>
         </div>
-        {errors.email && <Error message={errors.email} />}
+      )}
+
+      {error && (
         <div className="space-y-1">
+          <ErrorAlert message={error.message} />
+          {error.message?.toLowerCase()?.includes("email not confirmed") && (
+            <div className="text-[11px] text-amber-300 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20 leading-relaxed">
+              💡 <strong>Email confirmation is enabled in your Supabase project.</strong> Please verify your email inbox or disable email confirmation in Supabase Dashboard: <strong>Authentication &gt; Providers &gt; Email &gt; Confirm email (Toggle OFF)</strong>.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Email Field */}
+      <div className="space-y-1.5">
+        <label htmlFor="login-email" className="text-xs font-medium text-foreground">
+          Email address
+        </label>
+        <Input
+          id="login-email"
+          name="email"
+          type="email"
+          placeholder="name@company.com"
+          value={formData.email}
+          onChange={handleInputChange}
+          className={`h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary ${
+            errors.email ? "border-rose-500" : ""
+          }`}
+          autoComplete="email"
+        />
+        {errors.email && (
+          <span className="text-[11px] text-rose-400 font-medium block">
+            {errors.email}
+          </span>
+        )}
+      </div>
+
+      {/* Password Field */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="login-password" className="text-xs font-medium text-foreground">
+            Password
+          </label>
+        </div>
+        <div className="relative">
           <Input
+            id="login-password"
             name="password"
-            type="password"
-            placeholder="Enter Password"
+            type={showPassword ? "text" : "password"}
+            placeholder="••••••••"
             value={formData.password}
             onChange={handleInputChange}
+            className={`h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary pr-8 ${
+              errors.password ? "border-rose-500" : ""
+            }`}
+            autoComplete="current-password"
           />
-        </div>
-        {errors.password && <Error message={errors.password} />}
-      </CardContent>
-      <CardFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
-        <Button onClick={handleLogin}>
-          {loading ? <BeatLoader size={10} color="#36d7b7" /> : "Login"}
-        </Button>
-        {isMockMode && (
-          <Button
+          <button
             type="button"
-            variant="secondary"
-            onClick={handleDemoLogin}
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
-            Quick Demo Login ⚡
-          </Button>
+            {showPassword ? (
+              <EyeOff className="h-3.5 w-3.5" />
+            ) : (
+              <Eye className="h-3.5 w-3.5" />
+            )}
+          </button>
+        </div>
+        {errors.password && (
+          <span className="text-[11px] text-rose-400 font-medium block">
+            {errors.password}
+          </span>
         )}
-      </CardFooter>
-    </Card>
-  );
-};
+      </div>
 
-export default Login;
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        disabled={loading}
+        className="w-full h-9 bg-primary hover:bg-blue-500 text-white font-medium text-xs shadow-sm shadow-blue-500/25 mt-2"
+      >
+        {loading ? <BeatLoader size={6} color="white" /> : "Sign in to AeroLink"}
+      </Button>
+
+      {/* Switch to Signup */}
+      {onSwitchToSignup && (
+        <p className="text-center text-xs text-muted-foreground pt-2">
+          Don&apos;t have an account?{" "}
+          <button
+            type="button"
+            onClick={onSwitchToSignup}
+            className="text-primary hover:underline font-medium"
+          >
+            Create account
+          </button>
+        </p>
+      )}
+    </form>
+  );
+}

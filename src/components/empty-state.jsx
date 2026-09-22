@@ -7,25 +7,40 @@ export default function EmptyState({
   actionLabel = "Create Link",
   onAction,
   icon: Icon = Link2,
+  secondaryActionLabel,
+  onSecondaryAction,
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center border border-dashed border-gray-800 rounded-2xl bg-gray-900/40">
-      <div className="p-4 bg-gray-800/80 rounded-2xl mb-4 text-blue-400">
-        <Icon className="h-8 w-8" />
+    <div className="flex flex-col items-center justify-center py-14 px-6 text-center border border-dashed border-border-subtle rounded-2xl bg-surface/40 backdrop-blur-sm">
+      <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-border-subtle flex items-center justify-center text-primary mb-4 shadow-inner">
+        <Icon className="h-6 w-6" />
       </div>
-      <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-      <p className="text-gray-400 max-w-md text-sm mb-6 leading-relaxed">
+      <h3 className="text-base font-semibold text-foreground mb-1.5">{title}</h3>
+      <p className="text-muted-foreground max-w-sm text-xs mb-6 leading-relaxed">
         {description}
       </p>
-      {onAction && (
-        <Button
-          onClick={onAction}
-          className="bg-blue-600 hover:bg-blue-500 text-white gap-2 font-medium"
-        >
-          <Plus className="h-4 w-4" />
-          {actionLabel}
-        </Button>
-      )}
+      <div className="flex items-center gap-3">
+        {onSecondaryAction && secondaryActionLabel && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onSecondaryAction}
+            className="text-xs border-border-subtle hover:bg-surface-hover text-muted-foreground hover:text-foreground"
+          >
+            {secondaryActionLabel}
+          </Button>
+        )}
+        {onAction && (
+          <Button
+            size="sm"
+            onClick={onAction}
+            className="bg-primary hover:bg-blue-500 text-white gap-1.5 text-xs font-medium shadow-sm shadow-blue-500/20"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {actionLabel}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

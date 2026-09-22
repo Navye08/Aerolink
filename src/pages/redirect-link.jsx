@@ -1,17 +1,16 @@
 import {useState, useEffect} from "react";
-import {useParams, useNavigate} from "react-router-dom";
+import {useParams, useNavigate, Link} from "react-router-dom";
 import {resolveLinkByAlias, verifyLinkPassword} from "@/services/linkService";
 import {recordClick, getClicksForUrl} from "@/services/analyticsService";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {BarLoader, BeatLoader} from "react-spinners";
+import {BeatLoader} from "react-spinners";
 import {
   Lock,
   Clock,
-  AlertTriangle,
+  PauseCircle,
   FileQuestion,
-  ShieldCheck,
+  ShieldAlert,
   ArrowRight,
   Zap,
 } from "lucide-react";
@@ -92,17 +91,18 @@ export default function RedirectLink() {
     e.preventDefault();
     setPasswordError("");
 
-    if (!passwordInput) {
-      setPasswordError("Please enter the link passcode.");
+    const trimmedInput = passwordInput.trim();
+    if (!trimmedInput) {
+      setPasswordError("Please enter the passcode.");
       return;
     }
 
     setVerifying(true);
     try {
-      const isValid = await verifyLinkPassword(linkData.id, passwordInput);
+      const isValid = await verifyLinkPassword(linkData.id, trimmedInput);
       if (isValid) {
-        // Correct passcode -> record click and redirect
-        recordClick({urlId: linkData.id, originalUrl: linkData.original_url});
+        setStatusState("ready");
+        await recordClick({urlId: linkData.id, originalUrl: linkData.original_url});
       } else {
         setPasswordError("Incorrect passcode. Please try again.");
       }
@@ -114,153 +114,197 @@ export default function RedirectLink() {
     }
   };
 
-  // Loading State
+  // 1. Loading / Redirecting State
   if (loading || statusState === "ready") {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center space-y-4 px-4">
-        <div className="h-12 w-12 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-2">
-          <Zap className="h-6 w-6 animate-pulse" />
+      <div className="flex flex-col items-center justify-center text-center space-y-4 max-w-sm px-4">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25 mb-1 animate-pulse">
+          <Zap className="h-6 w-6 text-white fill-white" />
         </div>
-        <BarLoader width={200} color="#3B82F6" height={3} />
-        <p className="text-sm font-medium text-gray-300">
-          Redirecting to destination...
-        </p>
+        <div className="space-y-1">
+          <h2 className="text-base font-semibold text-foreground">
+            Redirecting to destination
+          </h2>
+          <p className="text-xs text-muted-foreground font-mono">
+            aerolink.in/{id}
+          </p>
+        </div>
+        <div className="w-32 h-1 bg-surface-elevated rounded-full overflow-hidden">
+          <div className="w-full h-full bg-primary animate-pulse" />
+        </div>
       </div>
     );
   }
 
-  // 1. Not Found (404) State
+  // 2. Not Found (404) State
   if (statusState === "not_found") {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center space-y-4 px-4">
-        <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 text-gray-400 mb-2">
-          <FileQuestion className="h-10 w-10 text-red-400" />
+      <div className="p-8 bg-surface border border-border-strong rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
+        <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-border-subtle flex items-center justify-center text-muted-foreground mx-auto">
+          <FileQuestion className="h-6 w-6 text-rose-400" />
         </div>
-        <h1 className="text-3xl font-extrabold text-white">Link Not Found</h1>
-        <p className="text-sm text-gray-400 max-w-sm">
-          The short link you are trying to visit does not exist or may have been deleted.
-        </p>
-        <Button onClick={() => navigate("/")} className="bg-blue-600 hover:bg-blue-500 mt-2">
-          Go to AeroLink Home
+        <div className="space-y-1">
+          <h1 className="text-lg font-bold text-foreground">Link Not Found</h1>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            The short link you are trying to visit does not exist or may have been deleted.
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate("/")}
+          className="w-full bg-primary hover:bg-blue-500 text-white text-xs font-medium h-9"
+        >
+          Go to AeroLink
         </Button>
       </div>
     );
   }
 
-  // 2. Disabled Link State
+  // 3. Disabled / Paused Link State
   if (statusState === "disabled") {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center space-y-4 px-4">
-        <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 text-amber-400 mb-2">
-          <AlertTriangle className="h-10 w-10" />
+      <div className="p-8 bg-surface border border-border-strong rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
+        <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mx-auto">
+          <PauseCircle className="h-6 w-6" />
         </div>
-        <h1 className="text-3xl font-extrabold text-white">Link Paused</h1>
-        <p className="text-sm text-gray-400 max-w-md">
-          This short link has been temporarily paused or disabled by its creator.
-        </p>
-        <Button onClick={() => navigate("/")} variant="outline" className="border-gray-700 mt-2">
-          Return to Home
+        <div className="space-y-1">
+          <h1 className="text-lg font-bold text-foreground">Link Unavailable</h1>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            This link is currently paused or inactive. Please contact the link owner.
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate("/")}
+          variant="outline"
+          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9"
+        >
+          Go to AeroLink
         </Button>
       </div>
     );
   }
 
-  // 3. Expired Link State
+  // 4. Expired Link State
   if (statusState === "expired") {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center space-y-4 px-4">
-        <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 text-gray-400 mb-2">
-          <Clock className="h-10 w-10 text-gray-400" />
+      <div className="p-8 bg-surface border border-border-strong rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
+        <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mx-auto">
+          <Clock className="h-6 w-6" />
         </div>
-        <h1 className="text-3xl font-extrabold text-white">Link Expired</h1>
-        <p className="text-sm text-gray-400 max-w-md">
-          This short link reached its expiration date on{" "}
-          <strong className="text-gray-300">
-            {new Date(linkData.expires_at).toLocaleString()}
-          </strong>{" "}
-          and is no longer accessible.
-        </p>
-        <Button onClick={() => navigate("/")} variant="outline" className="border-gray-700 mt-2">
-          Return to Home
+        <div className="space-y-1">
+          <h1 className="text-lg font-bold text-foreground">Link Expired</h1>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            This short link reached its expiration date on{" "}
+            <span className="font-mono text-foreground font-medium">
+              {new Date(linkData.expires_at).toLocaleString([], {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>{" "}
+            and is no longer accepting visits.
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate("/")}
+          variant="outline"
+          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9"
+        >
+          Go to AeroLink
         </Button>
       </div>
     );
   }
 
-  // 4. Click Limit Reached State
+  // 5. Click Limit Reached State
   if (statusState === "limit_reached") {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center space-y-4 px-4">
-        <div className="p-4 rounded-2xl bg-gray-900 border border-gray-800 text-orange-400 mb-2">
-          <ShieldCheck className="h-10 w-10" />
+      <div className="p-8 bg-surface border border-border-strong rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
+        <div className="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 mx-auto">
+          <ShieldAlert className="h-6 w-6" />
         </div>
-        <h1 className="text-3xl font-extrabold text-white">Click Limit Reached</h1>
-        <p className="text-sm text-gray-400 max-w-md">
-          This short link was configured with a maximum visit limit of{" "}
-          <strong className="text-gray-300">{linkData.max_clicks} clicks</strong>, which has now
-          been reached.
-        </p>
-        <Button onClick={() => navigate("/")} variant="outline" className="border-gray-700 mt-2">
-          Return to Home
+        <div className="space-y-1">
+          <h1 className="text-lg font-bold text-foreground">Access Limit Reached</h1>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            This link was configured with a visitor cap of{" "}
+            <span className="font-mono text-foreground font-medium">
+              {linkData.max_clicks} clicks
+            </span>
+            , which has now been fulfilled.
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate("/")}
+          variant="outline"
+          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9"
+        >
+          Go to AeroLink
         </Button>
       </div>
     );
   }
 
-  // 5. Password Challenge Form
+  // 6. Password Protected Challenge State
   if (statusState === "password_required") {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
-        <Card className="w-full max-w-md bg-gray-900 border-gray-800 shadow-2xl">
-          <CardHeader className="text-center pb-3">
-            <div className="mx-auto w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-3">
-              <Lock className="h-6 w-6" />
-            </div>
-            <CardTitle className="text-2xl font-extrabold text-white">
-              Passcode Protected
-            </CardTitle>
-            <p className="text-xs text-gray-400 mt-1">
-              The owner of this link requires a passcode before you can proceed to the destination.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div className="space-y-1">
-                <Input
-                  type="password"
-                  placeholder="Enter passcode..."
-                  value={passwordInput}
-                  onChange={(e) => {
-                    setPasswordInput(e.target.value);
-                    if (passwordError) setPasswordError("");
-                  }}
-                  className={`h-11 bg-gray-950/60 border-gray-800 text-sm ${
-                    passwordError ? "border-red-500" : ""
-                  }`}
-                  autoFocus
-                />
-                {passwordError && (
-                  <p className="text-xs text-red-400 font-medium">{passwordError}</p>
-                )}
-              </div>
+      <div className="p-6 sm:p-8 bg-surface border border-border-strong rounded-2xl max-w-md w-full space-y-5 shadow-2xl">
+        <div className="text-center space-y-2">
+          <div className="w-11 h-11 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 mx-auto">
+            <Lock className="h-5 w-5" />
+          </div>
+          <h1 className="text-lg font-bold text-foreground">
+            This link is protected
+          </h1>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            The owner requires a passcode before redirecting you to the destination.
+          </p>
+        </div>
 
-              <Button
-                type="submit"
-                disabled={verifying}
-                className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2"
-              >
-                {verifying ? (
-                  <BeatLoader size={8} color="white" />
-                ) : (
-                  <>
-                    <span>Unlock & Continue</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <form onSubmit={handlePasswordSubmit} className="space-y-3.5">
+          <div className="space-y-1">
+            <Input
+              type="password"
+              placeholder="Enter passcode..."
+              value={passwordInput}
+              onChange={(e) => {
+                setPasswordInput(e.target.value);
+                if (passwordError) setPasswordError("");
+              }}
+              className={`h-10 bg-surface-elevated border-border-subtle text-xs focus-visible:ring-primary ${
+                passwordError ? "border-rose-500" : ""
+              }`}
+              autoFocus
+            />
+            {passwordError && (
+              <span className="text-[11px] text-rose-400 font-medium block">
+                {passwordError}
+              </span>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            disabled={verifying}
+            className="w-full h-10 bg-primary hover:bg-blue-500 text-white font-medium text-xs shadow-sm shadow-blue-500/25 flex items-center justify-center gap-2"
+          >
+            {verifying ? (
+              <BeatLoader size={6} color="white" />
+            ) : (
+              <>
+                <span>Continue to destination</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </>
+            )}
+          </Button>
+        </form>
+
+        <div className="pt-2 text-center">
+          <Link
+            to="/"
+            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Powered by AeroLink
+          </Link>
+        </div>
       </div>
     );
   }

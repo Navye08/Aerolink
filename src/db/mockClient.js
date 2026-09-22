@@ -1,3 +1,5 @@
+import {hashPassword} from "@/lib/crypto";
+
 // Mock Supabase client using localStorage for local development and offline testing
 // Activated when real Supabase credentials are not provided or unreachable
 
@@ -10,13 +12,56 @@ const STORAGE_KEYS = {
   INIT: "trimrr_mock_init",
 };
 
+const getItems = (key) => {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+};
+
+const setItems = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (err) {
+    console.warn("Mock storage quota or error:", err);
+  }
+};
+
 const initMockData = () => {
   if (typeof window === "undefined") return;
-  if (localStorage.getItem(STORAGE_KEYS.INIT)) return;
+  if (localStorage.getItem(STORAGE_KEYS.INIT)) {
+    // Migrate legacy trimrr mock user if present
+    const existingUsers = getItems(STORAGE_KEYS.USERS);
+    let migrated = false;
+    existingUsers.forEach((u) => {
+      if (u.email === "demo@trimrr.in") {
+        u.email = "demo@aerolink.in";
+        migrated = true;
+      }
+    });
+    if (migrated) {
+      setItems(STORAGE_KEYS.USERS, existingUsers);
+      const sessionStr = localStorage.getItem(STORAGE_KEYS.SESSION);
+      if (sessionStr) {
+        try {
+          const session = JSON.parse(sessionStr);
+          if (session?.user?.email === "demo@trimrr.in") {
+            session.user.email = "demo@aerolink.in";
+            localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+          }
+        } catch {
+          // ignore session parsing error
+        }
+      }
+    }
+    return;
+  }
 
   const defaultUser = {
     id: "mock-user-12345",
-    email: "demo@trimrr.in",
+    email: "demo@aerolink.in",
     role: "authenticated",
     user_metadata: {
       name: "Demo User",
@@ -128,23 +173,6 @@ const initMockData = () => {
 
 initMockData();
 
-const getItems = (key) => {
-  try {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
-};
-
-const setItems = (key, data) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch (err) {
-    console.warn("Mock storage quota or error:", err);
-  }
-};
-
 class QueryBuilder {
   constructor(table) {
     this.table = table;
@@ -166,7 +194,8 @@ class QueryBuilder {
   }
 
   in(field, values) {
-    const stringValues = (values || []).map(String);
+    const arr = Array.isArray(values) ? values : [];
+    const stringValues = arr.map(String);
     this.filters.push((item) => stringValues.includes(String(item[field])));
     return this;
   }
@@ -178,7 +207,7 @@ class QueryBuilder {
       return {field: parts[0]?.trim(), value: parts[1]?.trim()};
     });
     this.filters.push((item) =>
-      clauses.some((c) => String(item[c.field]) === String(c.value))
+      clauses.some((c) => item[c.field] != null && String(item[c.field]) === String(c.value))
     );
     return this;
   }
@@ -224,7 +253,7 @@ class QueryBuilder {
     return this.execute().then(resolve, reject);
   }
 
-  async insert(rows) {
+  insert(rows) {
     const list = Array.isArray(rows) ? rows : [rows];
     const current = getItems(this.key);
     const inserted = list.map((row) => ({
@@ -236,8 +265,10 @@ class QueryBuilder {
     }));
     current.push(...inserted);
     setItems(this.key, current);
+    const result = {data: inserted, error: null};
     return {
-      select: async () => ({data: inserted, error: null}),
+      select: () => Promise.resolve(result),
+      then: (resolve, reject) => Promise.resolve(result).then(resolve, reject),
       data: inserted,
       error: null,
     };
@@ -258,8 +289,10 @@ class QueryBuilder {
           return item;
         });
         setItems(this.key, modifiedList);
+        const result = {data: updated, error: null};
         return {
-          select: async () => ({data: updated, error: null}),
+          select: () => Promise.resolve(result),
+          then: (resolve, reject) => Promise.resolve(result).then(resolve, reject),
           data: updated,
           error: null,
         };
@@ -275,6 +308,16 @@ class QueryBuilder {
           (item) => String(item[field]) !== String(value)
         );
         setItems(this.key, filtered);
+
+        // Cascading delete for clicks associated with deleted url
+        if (this.table === "urls" && field === "id") {
+          const clicks = getItems(STORAGE_KEYS.CLICKS);
+          const remainingClicks = clicks.filter(
+            (c) => String(c.url_id) !== String(value)
+          );
+          setItems(STORAGE_KEYS.CLICKS, remainingClicks);
+        }
+
         return Promise.resolve({data: null, error: null});
       },
     };
@@ -286,17 +329,32 @@ export const mockSupabase = {
     return new QueryBuilder(table);
   },
 
-  rpc(functionName, params = {}) {
+  async rpc(functionName, params = {}) {
     if (functionName === "verify_link_password") {
       const urls = getItems(STORAGE_KEYS.URLS);
       const url = urls.find((u) => String(u.id) === String(params.p_url_id));
       if (!url || !url.password_hash) {
-        return Promise.resolve({data: true, error: null});
+        return {data: true, error: null};
       }
-      const match = url.password_hash === params.p_password;
-      return Promise.resolve({data: match, error: null});
+      const rawPass = params.p_password != null ? String(params.p_password) : "";
+      const trimmedPass = rawPass.trim();
+      let hashedInput = null;
+      let hashedTrimmed = null;
+      try {
+        hashedInput = await hashPassword(rawPass);
+        hashedTrimmed = await hashPassword(trimmedPass);
+      } catch {
+        hashedInput = null;
+        hashedTrimmed = null;
+      }
+      const match =
+        url.password_hash === hashedTrimmed ||
+        url.password_hash === hashedInput ||
+        url.password_hash === trimmedPass ||
+        url.password_hash === rawPass;
+      return {data: match, error: null};
     }
-    return Promise.resolve({data: null, error: null});
+    return {data: null, error: null};
   },
 
   storage: {

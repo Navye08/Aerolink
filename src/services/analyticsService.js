@@ -80,7 +80,7 @@ export async function recordClick({urlId, originalUrl}) {
  * Fetches all click records for a set of link IDs.
  */
 export async function getClicksForUrls(urlIds = []) {
-  if (!urlIds || urlIds.length === 0) return [];
+  if (!urlIds || !Array.isArray(urlIds) || urlIds.length === 0) return [];
 
   const {data, error} = await supabase
     .from("clicks")
@@ -182,17 +182,23 @@ export function aggregateAnalytics(clicks = [], dateRange = "all") {
     (c) => now - new Date(c.created_at).getTime() <= ONE_MONTH_MS
   ).length;
 
-  // 3. Time Series Data (Grouped by Day)
-  const timeBuckets = {};
-  filtered.forEach((c) => {
+  // 3. Time Series Data (Grouped by Day in Chronological Order: Oldest to Newest)
+  const timeBuckets = new Map();
+  const sortedClicks = [...filtered].sort((a, b) => {
+    const timeA = new Date(a.created_at).getTime() || 0;
+    const timeB = new Date(b.created_at).getTime() || 0;
+    return timeA - timeB;
+  });
+
+  sortedClicks.forEach((c) => {
     const dateStr = new Date(c.created_at).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });
-    timeBuckets[dateStr] = (timeBuckets[dateStr] || 0) + 1;
+    timeBuckets.set(dateStr, (timeBuckets.get(dateStr) || 0) + 1);
   });
 
-  const timeSeries = Object.entries(timeBuckets).map(([date, count]) => ({
+  const timeSeries = Array.from(timeBuckets.entries()).map(([date, count]) => ({
     date,
     clicks: count,
   }));

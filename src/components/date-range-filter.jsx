@@ -1,28 +1,28 @@
 import {Calendar} from "lucide-react";
 
 const RANGES = [
-  {id: "all", label: "All Time"},
   {id: "today", label: "Today"},
-  {id: "7d", label: "Last 7 Days"},
-  {id: "30d", label: "Last 30 Days"},
+  {id: "7d", label: "7D"},
+  {id: "30d", label: "30D"},
+  {id: "all", label: "All Time"},
 ];
 
 export default function DateRangeFilter({selectedRange = "all", onChange}) {
   return (
-    <div className="flex items-center gap-1.5 p-1 bg-gray-900 border border-gray-800 rounded-lg flex-wrap">
-      <div className="flex items-center gap-1 px-2 text-xs text-gray-400 font-medium">
-        <Calendar className="h-3.5 w-3.5 text-blue-400" />
-        <span className="hidden sm:inline">Range:</span>
+    <div className="inline-flex items-center gap-1 p-1 bg-surface-elevated border border-border-subtle rounded-lg">
+      <div className="hidden sm:flex items-center gap-1.5 px-2 text-xs text-muted-foreground font-medium border-r border-border-subtle mr-0.5">
+        <Calendar className="h-3 w-3 text-primary" />
+        <span>Window</span>
       </div>
       {RANGES.map((r) => (
         <button
           key={r.id}
           type="button"
           onClick={() => onChange(r.id)}
-          className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
+          className={`px-2.5 py-1 text-xs rounded-md font-medium transition-all ${
             selectedRange === r.id
-              ? "bg-blue-600 text-white shadow-sm font-semibold"
-              : "text-gray-400 hover:text-gray-200 hover:bg-gray-800"
+              ? "bg-primary text-white shadow-xs font-semibold"
+              : "text-muted-foreground hover:text-foreground hover:bg-surface"
           }`}
         >
           {r.label}

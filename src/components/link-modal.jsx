@@ -8,11 +8,19 @@ import {
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
-import {Card} from "@/components/ui/card";
 import {createLink, updateLink} from "@/services/linkService";
 import {validateUrl, validateAlias, validateExpiration} from "@/lib/validators";
 import {BeatLoader} from "react-spinners";
-import {Lock, Calendar, Tag, ShieldCheck, FileText, Globe} from "lucide-react";
+import {
+  Lock,
+  Calendar,
+  Tag,
+  ShieldAlert,
+  ChevronDown,
+  ChevronUp,
+  Link2,
+  Sparkles,
+} from "lucide-react";
 
 export default function LinkModal({
   isOpen,
@@ -37,9 +45,12 @@ export default function LinkModal({
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [removePassword, setRemovePassword] = useState(false);
 
   // Synchronize initial data when opening for Edit or Duplicate
   useEffect(() => {
+    setRemovePassword(false);
     if (initialData) {
       let formattedExpiry = "";
       if (initialData.expires_at) {
@@ -62,6 +73,11 @@ export default function LinkModal({
         password: "",
         isActive: initialData.is_active !== false,
       });
+
+      // Expand advanced controls if any advanced setting exists
+      if (formattedExpiry || initialData.max_clicks || initialData.password_hash) {
+        setShowAdvanced(true);
+      }
     } else {
       setFormData({
         title: "",
@@ -74,6 +90,7 @@ export default function LinkModal({
         password: "",
         isActive: true,
       });
+      setShowAdvanced(false);
     }
     setErrors({});
     setApiError(null);
@@ -89,6 +106,13 @@ export default function LinkModal({
       setErrors((prev) => ({...prev, [id]: null}));
     }
   };
+
+  const currentOrigin =
+    typeof window !== "undefined" ? window.location.host : "aerolink.in";
+
+  const previewSlug =
+    formData.customAlias.trim() ||
+    (initialData?.short_url ? initialData.short_url : "short-slug");
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
@@ -132,6 +156,13 @@ export default function LinkModal({
 
     try {
       if (mode === "edit" && initialData?.id) {
+        let passwordUpdate = {};
+        if (removePassword) {
+          passwordUpdate = {password: null};
+        } else if (formData.password) {
+          passwordUpdate = {password: formData.password};
+        }
+
         const updated = await updateLink(initialData.id, {
           title: formData.title || urlRes.normalizedUrl.slice(0, 30),
           original_url: urlRes.normalizedUrl,
@@ -141,7 +172,7 @@ export default function LinkModal({
           is_active: formData.isActive,
           expires_at: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null,
           max_clicks: formData.maxClicks ? parseInt(formData.maxClicks, 10) : null,
-          ...(formData.password ? {password: formData.password} : {}),
+          ...passwordUpdate,
         });
 
         if (onSuccess) onSuccess(updated);
@@ -172,205 +203,275 @@ export default function LinkModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-            <Globe className="h-6 w-6 text-blue-500" />
-            {mode === "edit" ? "Edit Short Link" : "Create New Short Link"}
-          </DialogTitle>
-          <p className="text-sm text-gray-400">
-            Configure your destination URL, custom alias, security, and expiration rules.
+      <DialogContent className="sm:max-w-lg bg-surface border-border-strong p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="gap-1">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+              <Link2 className="h-4 w-4" />
+            </div>
+            <DialogTitle className="text-lg font-semibold text-foreground">
+              {mode === "edit" ? "Edit Link" : "Create New Link"}
+            </DialogTitle>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Configure destination routing, custom alias, and optional security policies.
           </p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 my-2">
           {apiError && (
-            <div className="p-3 text-sm bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg">
+            <div className="p-3 text-xs bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-lg">
               {apiError}
             </div>
           )}
 
-          {/* Title Input */}
-          <div className="space-y-1">
-            <label htmlFor="title" className="text-xs font-semibold text-gray-300">
-              Link Title
-            </label>
-            <Input
-              id="title"
-              placeholder="e.g. Developer Portfolio, Summer Campaign"
-              value={formData.title}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Destination URL Input */}
-          <div className="space-y-1">
-            <label htmlFor="destinationUrl" className="text-xs font-semibold text-gray-300">
-              Destination URL <span className="text-red-400">*</span>
+          {/* Destination URL */}
+          <div className="space-y-1.5">
+            <label
+              htmlFor="destinationUrl"
+              className="text-xs font-medium text-foreground flex items-center justify-between"
+            >
+              <span>Destination URL</span>
+              <span className="text-[11px] text-muted-foreground">Required</span>
             </label>
             <Input
               id="destinationUrl"
-              placeholder="https://yourlongwebsite.com/resource/page"
+              type="text"
+              placeholder="https://example.com/very/long/url"
               value={formData.destinationUrl}
               onChange={handleChange}
-              className={errors.destinationUrl ? "border-red-500" : ""}
+              className={`h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary ${
+                errors.destinationUrl ? "border-rose-500" : ""
+              }`}
+              autoFocus
             />
             {errors.destinationUrl && (
-              <span className="text-xs text-red-400">{errors.destinationUrl}</span>
+              <span className="text-[11px] text-rose-400 font-medium block">
+                {errors.destinationUrl}
+              </span>
             )}
           </div>
 
-          {/* Custom Alias */}
-          <div className="space-y-1">
-            <label htmlFor="customAlias" className="text-xs font-semibold text-gray-300">
-              Custom Alias (Optional)
+          {/* Short Link & Custom Alias Preview */}
+          <div className="space-y-1.5">
+            <label
+              htmlFor="customAlias"
+              className="text-xs font-medium text-foreground flex items-center justify-between"
+            >
+              <span>Short Link & Custom Alias</span>
+              <span className="text-[11px] text-muted-foreground">Optional</span>
             </label>
-            <div className="flex items-center gap-2">
-              <Card className="px-3 py-2 text-xs text-gray-400 bg-gray-800 border-gray-700 select-none">
-                {typeof window !== "undefined" ? window.location.host : "aerolink.in"}/
-              </Card>
-              <Input
+            <div className="flex items-center rounded-lg border border-border-subtle bg-surface-elevated overflow-hidden focus-within:ring-1 focus-within:ring-primary focus-within:border-primary">
+              <span className="px-3 py-2 text-xs text-muted-foreground font-mono bg-surface border-r border-border-subtle select-none">
+                {currentOrigin}/
+              </span>
+              <input
                 id="customAlias"
-                placeholder="my-custom-slug"
+                type="text"
+                placeholder="custom-slug"
                 value={formData.customAlias}
                 onChange={handleChange}
-                className={`flex-1 ${errors.customAlias ? "border-red-500" : ""}`}
+                className="flex-1 bg-transparent px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none font-mono"
               />
             </div>
-            {errors.customAlias && (
-              <span className="text-xs text-red-400">{errors.customAlias}</span>
+            {errors.customAlias ? (
+              <span className="text-[11px] text-rose-400 font-medium block">
+                {errors.customAlias}
+              </span>
+            ) : (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Sparkles className="h-3 w-3 text-primary" />
+                Live preview: <span className="text-primary font-mono">{currentOrigin}/{previewSlug}</span>
+              </p>
             )}
           </div>
 
-          {/* Collapsible Advanced Settings (Grid) */}
-          <div className="pt-2 border-t border-gray-800">
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-              Advanced Controls & Security
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Expiration Date */}
-              <div className="space-y-1">
-                <label
-                  htmlFor="expiresAt"
-                  className="text-xs font-semibold text-gray-300 flex items-center gap-1.5"
-                >
-                  <Calendar className="h-3.5 w-3.5 text-amber-400" />
-                  Expiration Date
-                </label>
-                <Input
-                  id="expiresAt"
-                  type="datetime-local"
-                  value={formData.expiresAt}
-                  onChange={handleChange}
-                  className="text-xs"
-                />
-                {errors.expiresAt && (
-                  <span className="text-xs text-red-400">{errors.expiresAt}</span>
-                )}
-              </div>
+          {/* Title & Tags */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label htmlFor="title" className="text-xs font-medium text-foreground">
+                Title (Optional)
+              </label>
+              <Input
+                id="title"
+                placeholder="e.g. Portfolio Link"
+                value={formData.title}
+                onChange={handleChange}
+                className="h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary"
+              />
+            </div>
 
-              {/* Click Limit */}
-              <div className="space-y-1">
-                <label
-                  htmlFor="maxClicks"
-                  className="text-xs font-semibold text-gray-300 flex items-center gap-1.5"
-                >
-                  <ShieldCheck className="h-3.5 w-3.5 text-blue-400" />
-                  Click Limit
-                </label>
-                <Input
-                  id="maxClicks"
-                  type="number"
-                  min="1"
-                  placeholder="e.g. 100"
-                  value={formData.maxClicks}
-                  onChange={handleChange}
-                  className="text-xs"
-                />
-              </div>
-
-              {/* Password Protection */}
-              <div className="space-y-1 sm:col-span-2">
-                <label
-                  htmlFor="password"
-                  className="text-xs font-semibold text-gray-300 flex items-center gap-1.5"
-                >
-                  <Lock className="h-3.5 w-3.5 text-purple-400" />
-                  Password Protection (Optional)
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder={
-                    mode === "edit"
-                      ? "Leave empty to keep current password"
-                      : "Enter passcode required before redirect"
-                  }
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="text-xs"
-                />
-              </div>
-
-              {/* Tags */}
-              <div className="space-y-1 sm:col-span-2">
-                <label
-                  htmlFor="tagsString"
-                  className="text-xs font-semibold text-gray-300 flex items-center gap-1.5"
-                >
-                  <Tag className="h-3.5 w-3.5 text-emerald-400" />
-                  Tags (comma separated)
-                </label>
-                <Input
-                  id="tagsString"
-                  placeholder="marketing, campaign, github"
-                  value={formData.tagsString}
-                  onChange={handleChange}
-                  className="text-xs"
-                />
-              </div>
-
-              {/* Notes */}
-              <div className="space-y-1 sm:col-span-2">
-                <label
-                  htmlFor="notes"
-                  className="text-xs font-semibold text-gray-300 flex items-center gap-1.5"
-                >
-                  <FileText className="h-3.5 w-3.5 text-gray-400" />
-                  Internal Notes (Optional)
-                </label>
-                <textarea
-                  id="notes"
-                  rows={2}
-                  placeholder="Internal reminders or context about this link"
-                  value={formData.notes}
-                  onChange={handleChange}
-                  className="w-full text-xs rounded-md border border-input bg-background px-3 py-2 ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <label
+                htmlFor="tagsString"
+                className="text-xs font-medium text-foreground flex items-center gap-1"
+              >
+                <Tag className="h-3 w-3 text-muted-foreground" />
+                <span>Tags (comma-separated)</span>
+              </label>
+              <Input
+                id="tagsString"
+                placeholder="work, social, repo"
+                value={formData.tagsString}
+                onChange={handleChange}
+                className="h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary"
+              />
             </div>
           </div>
 
-          <DialogFooter className="pt-2">
+          {/* Collapsible Advanced Governance (Progressive Disclosure) */}
+          <div className="pt-2 border-t border-border-subtle">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="w-full flex items-center justify-between py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors group"
+            >
+              <span className="flex items-center gap-2">
+                <Lock className="h-3.5 w-3.5 text-primary" />
+                <span>Security & Lifecycle Controls</span>
+                {(formData.expiresAt || formData.maxClicks || formData.password) && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                )}
+              </span>
+              {showAdvanced ? (
+                <ChevronUp className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5" />
+              )}
+            </button>
+
+            {showAdvanced && (
+              <div className="space-y-3.5 pt-3 animate-fade-in">
+                {/* Expiration Date & Click Cap */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="expiresAt"
+                      className="text-xs font-medium text-foreground flex items-center gap-1.5"
+                    >
+                      <Calendar className="h-3 w-3 text-amber-400" />
+                      <span>Expiration Date</span>
+                    </label>
+                    <Input
+                      id="expiresAt"
+                      type="datetime-local"
+                      value={formData.expiresAt}
+                      onChange={handleChange}
+                      className="h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary text-muted-foreground"
+                    />
+                    {errors.expiresAt && (
+                      <span className="text-[11px] text-rose-400 block">
+                        {errors.expiresAt}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="maxClicks"
+                      className="text-xs font-medium text-foreground flex items-center gap-1.5"
+                    >
+                      <ShieldAlert className="h-3 w-3 text-blue-400" />
+                      <span>Click Limit Cap</span>
+                    </label>
+                    <Input
+                      id="maxClicks"
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 50"
+                      value={formData.maxClicks}
+                      onChange={handleChange}
+                      className="h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary"
+                    />
+                  </div>
+                </div>
+
+                {/* Password Protection */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor="password"
+                      className="text-xs font-medium text-foreground flex items-center gap-1.5"
+                    >
+                      <Lock className="h-3 w-3 text-violet-400" />
+                      <span>Passcode Protection</span>
+                    </label>
+                    {mode === "edit" && initialData?.password_hash && (
+                      <label className="flex items-center gap-1.5 text-xs text-rose-400 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={removePassword}
+                          onChange={(e) => setRemovePassword(e.target.checked)}
+                          className="rounded border-border-subtle text-rose-500 focus:ring-rose-500 h-3 w-3"
+                        />
+                        <span>Remove Passcode</span>
+                      </label>
+                    )}
+                  </div>
+                  {!removePassword ? (
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder={
+                        mode === "edit"
+                          ? (initialData?.password_hash ? "Enter new passcode to replace existing" : "Leave blank to keep unencrypted")
+                          : "Passcode required to proceed"
+                      }
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary"
+                    />
+                  ) : (
+                    <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+                      Passcode protection will be removed when you save changes.
+                    </div>
+                  )}
+                  <p className="text-[10px] text-muted-foreground">
+                    Verified securely via PostgreSQL RPC; hash is never exposed to visitors.
+                  </p>
+                </div>
+
+                {/* Internal Notes */}
+                <div className="space-y-1.5">
+                  <label htmlFor="notes" className="text-xs font-medium text-foreground">
+                    Internal Notes
+                  </label>
+                  <textarea
+                    id="notes"
+                    rows={2}
+                    placeholder="Private memo or campaign tracking notes"
+                    value={formData.notes}
+                    onChange={handleChange}
+                    className="w-full text-xs rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="pt-2 gap-2 sm:gap-2">
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => onOpenChange(false)}
               disabled={loading}
+              className="text-xs border-border-subtle hover:bg-surface-elevated"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+              size="sm"
+              className="bg-primary hover:bg-blue-500 text-white font-medium text-xs shadow-sm shadow-blue-500/25 px-4"
               disabled={loading}
             >
               {loading ? (
-                <BeatLoader size={8} color="white" />
+                <BeatLoader size={6} color="white" />
               ) : mode === "edit" ? (
-                "Save Changes"
+                "Save changes"
               ) : (
-                "Create Link"
+                "Create link"
               )}
             </Button>
           </DialogFooter>
