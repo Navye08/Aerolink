@@ -143,7 +143,7 @@ export default function QrModal({isOpen, onOpenChange, url, title}) {
                 variant="outline"
                 size="sm"
                 onClick={handleCopyLink}
-                className="flex-1 text-xs border-border-subtle hover:bg-surface-elevated"
+                className="flex-1 text-xs border-border-subtle hover:bg-surface-elevated active:scale-[0.98] transition-all"
               >
                 {copied ? "Copied!" : "Copy Link"}
               </Button>
@@ -151,7 +151,7 @@ export default function QrModal({isOpen, onOpenChange, url, title}) {
                 type="button"
                 size="sm"
                 onClick={handleDownload}
-                className="flex-1 bg-primary hover:bg-blue-500 text-white text-xs font-medium gap-1.5 shadow-sm shadow-blue-500/25"
+                className="flex-1 bg-primary hover:bg-blue-500 text-white text-xs font-medium gap-1.5 shadow-sm shadow-blue-500/25 active:scale-[0.98] transition-all"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Download PNG</span>

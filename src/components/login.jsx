@@ -99,9 +99,9 @@ export default function Login({onSwitchToSignup}) {
           <button
             type="button"
             onClick={handleDemoLogin}
-            className="text-[11px] font-semibold text-amber-300 hover:underline"
+            className="text-[11px] font-semibold text-amber-300 hover:underline flex items-center gap-1"
           >
-            Quick 1-Click Login ⚡
+            <span>Quick 1-Click Login</span>
           </button>
         </div>
       )}
@@ -111,7 +111,7 @@ export default function Login({onSwitchToSignup}) {
           <ErrorAlert message={error.message} />
           {error.message?.toLowerCase()?.includes("email not confirmed") && (
             <div className="text-[11px] text-amber-300 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20 leading-relaxed">
-              💡 <strong>Email confirmation is enabled in your Supabase project.</strong> Please verify your email inbox or disable email confirmation in Supabase Dashboard: <strong>Authentication &gt; Providers &gt; Email &gt; Confirm email (Toggle OFF)</strong>.
+              <strong>Email confirmation is enabled in your Supabase project.</strong> Please verify your email inbox or disable email confirmation in Supabase Dashboard: <strong>Authentication &gt; Providers &gt; Email &gt; Confirm email (Toggle OFF)</strong>.
             </div>
           )}
         </div>

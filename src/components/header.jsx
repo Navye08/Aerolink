@@ -125,14 +125,14 @@ export default function Header() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="text-xs h-8 text-muted-foreground hover:text-foreground hover:bg-surface-elevated font-medium"
+                className="text-xs h-8 text-muted-foreground hover:text-foreground hover:bg-surface-elevated font-medium active:scale-[0.98] transition-all"
               >
                 Log In
               </Button>
               <Button
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="text-xs h-8 bg-primary hover:bg-blue-500 text-white font-medium shadow-sm shadow-blue-500/25"
+                className="text-xs h-8 bg-primary hover:bg-blue-500 text-white font-medium shadow-sm shadow-blue-500/25 active:scale-[0.98] transition-all"
               >
                 Get Started
               </Button>

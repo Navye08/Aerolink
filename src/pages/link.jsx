@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   TrendingUp,
   Zap,
+  Globe,
 } from "lucide-react";
 import {UrlState} from "@/context";
 import useFetch from "@/hooks/use-fetch";
@@ -28,7 +29,10 @@ import LinkModal from "@/components/link-modal";
 import ConfirmDialog from "@/components/confirm-dialog";
 import DateRangeFilter from "@/components/date-range-filter";
 import {AnalyticsDashboardView} from "@/components/analytics-charts";
-import {MetricCardSkeleton} from "@/components/skeleton-loader";
+import {
+  MetricRibbonSkeleton,
+  ChartSkeleton,
+} from "@/components/skeleton-loader";
 import StatusBadge from "@/components/status-badge";
 
 export default function LinkPage() {
@@ -124,13 +128,8 @@ export default function LinkPage() {
   if (loading || !link) {
     return (
       <div className="space-y-6">
-        <div className="h-6 bg-surface-elevated rounded w-32 animate-pulse"></div>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <MetricCardSkeleton />
-          <MetricCardSkeleton />
-          <MetricCardSkeleton />
-          <MetricCardSkeleton />
-        </div>
+        <div className="h-6 bg-surface-elevated rounded w-32 animate-pulse" />
+        <MetricRibbonSkeleton />
       </div>
     );
   }
@@ -152,7 +151,7 @@ export default function LinkPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowQrModal(true)}
-            className="text-xs h-8 border-border-subtle hover:bg-surface-elevated text-foreground gap-1.5"
+            className="text-xs h-8 border-border-subtle hover:bg-surface-elevated text-foreground gap-1.5 active:scale-[0.98] transition-all"
           >
             <QrCode className="h-3.5 w-3.5 text-primary" />
             <span>QR Studio</span>
@@ -162,7 +161,7 @@ export default function LinkPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowEditModal(true)}
-            className="text-xs h-8 border-border-subtle hover:bg-surface-elevated text-foreground gap-1.5"
+            className="text-xs h-8 border-border-subtle hover:bg-surface-elevated text-foreground gap-1.5 active:scale-[0.98] transition-all"
           >
             <Edit2 className="h-3.5 w-3.5" />
             <span>Edit</span>
@@ -173,7 +172,7 @@ export default function LinkPage() {
             size="sm"
             onClick={handleToggle}
             disabled={isToggling}
-            className={`text-xs h-8 border-border-subtle hover:bg-surface-elevated gap-1.5 ${
+            className={`text-xs h-8 border-border-subtle hover:bg-surface-elevated gap-1.5 active:scale-[0.98] transition-all ${
               link.is_active ? "text-amber-400" : "text-emerald-400"
             }`}
           >
@@ -185,7 +184,7 @@ export default function LinkPage() {
             variant="ghost"
             size="sm"
             onClick={() => setShowDeleteConfirm(true)}
-            className="text-xs h-8 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 gap-1.5"
+            className="text-xs h-8 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 gap-1.5 active:scale-[0.98] transition-all"
           >
             <Trash2 className="h-3.5 w-3.5" />
             <span>Delete</span>
@@ -194,7 +193,7 @@ export default function LinkPage() {
       </div>
 
       {/* 2. MAIN LINK HEADER HERO */}
-      <div className="p-5 sm:p-6 bg-surface border border-border-subtle rounded-xl flex flex-col md:flex-row gap-6 items-start justify-between">
+      <div className="p-5 sm:p-6 bg-surface border border-border-subtle rounded-xl flex flex-col md:flex-row gap-6 items-start justify-between shadow-2xs">
         <div className="space-y-2 flex-1 min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate max-w-xl">
@@ -223,7 +222,7 @@ export default function LinkPage() {
               variant="ghost"
               size="icon"
               onClick={handleCopy}
-              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-surface-elevated rounded-lg"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-surface-elevated rounded-lg active:scale-[0.98] transition-all"
               title="Copy short URL"
             >
               {copied ? (
@@ -242,64 +241,65 @@ export default function LinkPage() {
             href={link.original_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5 truncate max-w-xl"
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5 truncate max-w-xl transition-colors"
           >
-            <ExternalLink className="h-3 w-3 flex-shrink-0" />
+            <Globe className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/80" />
             <span className="truncate">{link.original_url}</span>
+            <ExternalLink className="h-3 w-3 flex-shrink-0 opacity-60" />
           </a>
         </div>
       </div>
 
-      {/* 3. METRIC SUMMARY TILES */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="p-4 bg-surface border border-border-subtle rounded-xl">
+      {/* 3. COMPACT METRIC RIBBON */}
+      <div className="bg-surface border border-border-subtle rounded-xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x divide-border-subtle grid grid-cols-2 lg:grid-cols-4 shadow-2xs">
+        <div className="p-3.5 sm:p-4 hover:bg-surface-elevated/40 transition-colors">
           <div className="flex items-center justify-between text-muted-foreground mb-1">
-            <span className="text-xs font-medium">Total Clicks</span>
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">Total Clicks</span>
+            <TrendingUp className="h-3.5 w-3.5 text-primary/80" />
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
+          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums tracking-tight">
             {(stats?.length || 0).toLocaleString()}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
+          <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
             All-time visits tracked
           </p>
         </div>
 
-        <div className="p-4 bg-surface border border-border-subtle rounded-xl">
+        <div className="p-3.5 sm:p-4 hover:bg-surface-elevated/40 transition-colors">
           <div className="flex items-center justify-between text-muted-foreground mb-1">
-            <span className="text-xs font-medium">Unique Visitors</span>
-            <Zap className="h-3.5 w-3.5 text-violet-400" />
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">Unique Visitors</span>
+            <Zap className="h-3.5 w-3.5 text-violet-400/80" />
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
+          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums tracking-tight">
             {analyticsData.uniqueVisitors.toLocaleString()}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
+          <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
             Privacy-hashed devices
           </p>
         </div>
 
-        <div className="p-4 bg-surface border border-border-subtle rounded-xl">
+        <div className="p-3.5 sm:p-4 hover:bg-surface-elevated/40 transition-colors">
           <div className="flex items-center justify-between text-muted-foreground mb-1">
-            <span className="text-xs font-medium">Clicks Today</span>
-            <Calendar className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">Clicks Today</span>
+            <Calendar className="h-3.5 w-3.5 text-emerald-400/80" />
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
+          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums tracking-tight">
             {analyticsData.clicksToday.toLocaleString()}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
+          <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
             Last 24 hours
           </p>
         </div>
 
-        <div className="p-4 bg-surface border border-border-subtle rounded-xl">
+        <div className="p-3.5 sm:p-4 hover:bg-surface-elevated/40 transition-colors">
           <div className="flex items-center justify-between text-muted-foreground mb-1">
-            <span className="text-xs font-medium">Clicks This Week</span>
-            <Calendar className="h-3.5 w-3.5 text-amber-400" />
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">Clicks This Week</span>
+            <Calendar className="h-3.5 w-3.5 text-amber-400/80" />
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
+          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums tracking-tight">
             {analyticsData.clicksThisWeek.toLocaleString()}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
+          <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
             Past 7 days
           </p>
         </div>
@@ -310,7 +310,7 @@ export default function LinkPage() {
         {/* Left Column: Analytics Charts Suite */}
         <div className="lg:col-span-2 space-y-5">
           {/* Filtering Bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-surface border border-border-subtle rounded-xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-surface border border-border-subtle rounded-xl shadow-2xs">
             <div>
               <h3 className="text-xs font-semibold text-foreground">
                 Visitor Intelligence
@@ -335,7 +335,7 @@ export default function LinkPage() {
                   )
                 }
                 disabled={!stats || stats.length === 0}
-                className="text-xs h-8 border-border-subtle hover:bg-surface-elevated text-muted-foreground hover:text-foreground gap-1.5"
+                className="text-xs h-8 border-border-subtle hover:bg-surface-elevated text-muted-foreground hover:text-foreground gap-1.5 active:scale-[0.98] transition-all"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">CSV</span>
@@ -344,7 +344,7 @@ export default function LinkPage() {
           </div>
 
           {loadingStats ? (
-            <MetricCardSkeleton />
+            <ChartSkeleton />
           ) : (
             <AnalyticsDashboardView analyticsData={analyticsData} />
           )}
@@ -395,7 +395,7 @@ export default function LinkPage() {
             <div className="py-2.5 space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Click Quota</span>
-                <span className="font-mono text-foreground">
+                <span className="font-mono text-foreground tabular-nums">
                   {link.max_clicks
                     ? `${stats?.length || 0} / ${link.max_clicks}`
                     : "Unlimited"}
@@ -404,7 +404,13 @@ export default function LinkPage() {
               {link.max_clicks && (
                 <div className="h-1.5 w-full bg-surface-elevated rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary rounded-full transition-all"
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      (stats?.length || 0) >= link.max_clicks
+                        ? "bg-rose-500"
+                        : (stats?.length || 0) >= link.max_clicks * 0.8
+                        ? "bg-amber-400"
+                        : "bg-primary"
+                    }`}
                     style={{
                       width: `${Math.min(
                         Math.round(((stats?.length || 0) / link.max_clicks) * 100),

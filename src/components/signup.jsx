@@ -105,7 +105,7 @@ export default function Signup({onSwitchToLogin}) {
           id="signup-name"
           name="name"
           type="text"
-          placeholder="Jane Doe"
+          placeholder="Alex Rivera"
           value={formData.name}
           onChange={handleInputChange}
           className={`h-9 text-xs bg-surface-elevated border-border-subtle focus-visible:ring-primary ${

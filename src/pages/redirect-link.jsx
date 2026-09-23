@@ -151,7 +151,7 @@ export default function RedirectLink() {
         </div>
         <Button
           onClick={() => navigate("/")}
-          className="w-full bg-primary hover:bg-blue-500 text-white text-xs font-medium h-9"
+          className="w-full bg-primary hover:bg-blue-500 text-white text-xs font-medium h-9 active:scale-[0.98] transition-all"
         >
           Go to AeroLink
         </Button>
@@ -175,7 +175,7 @@ export default function RedirectLink() {
         <Button
           onClick={() => navigate("/")}
           variant="outline"
-          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9"
+          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9 active:scale-[0.98] transition-all"
         >
           Go to AeroLink
         </Button>
@@ -207,7 +207,7 @@ export default function RedirectLink() {
         <Button
           onClick={() => navigate("/")}
           variant="outline"
-          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9"
+          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9 active:scale-[0.98] transition-all"
         >
           Go to AeroLink
         </Button>
@@ -235,7 +235,7 @@ export default function RedirectLink() {
         <Button
           onClick={() => navigate("/")}
           variant="outline"
-          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9"
+          className="w-full text-xs border-border-subtle hover:bg-surface-elevated h-9 active:scale-[0.98] transition-all"
         >
           Go to AeroLink
         </Button>
@@ -284,7 +284,7 @@ export default function RedirectLink() {
           <Button
             type="submit"
             disabled={verifying}
-            className="w-full h-10 bg-primary hover:bg-blue-500 text-white font-medium text-xs shadow-sm shadow-blue-500/25 flex items-center justify-center gap-2"
+            className="w-full h-10 bg-primary hover:bg-blue-500 text-white font-medium text-xs shadow-sm shadow-blue-500/25 flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
           >
             {verifying ? (
               <BeatLoader size={6} color="white" />

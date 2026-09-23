@@ -65,7 +65,7 @@ export default function LinkCardMobile({
         <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
           <Link
             to={`/link/${url.id}`}
-            className="text-sm font-semibold text-foreground hover:text-primary transition-colors truncate max-w-[200px]"
+            className="text-sm font-semibold text-foreground hover:text-primary transition-colors truncate max-w-[200px] sm:max-w-md"
           >
             {url.title || destinationHost}
           </Link>
@@ -137,7 +137,7 @@ export default function LinkCardMobile({
       {/* 2. Routing: Short Link & Destination Link */}
       <div className="space-y-1">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-mono text-primary font-medium truncate max-w-[220px]">
+          <span className="font-mono text-primary font-medium truncate max-w-[220px] sm:max-w-md">
             /{url.custom_url || url.short_url}
           </span>
           <button
@@ -163,7 +163,7 @@ export default function LinkCardMobile({
           href={url.original_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 truncate"
+          className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 truncate max-w-full"
         >
           <ExternalLink className="h-2.5 w-2.5 flex-shrink-0 opacity-60" />
           <span className="truncate">{url.original_url}</span>

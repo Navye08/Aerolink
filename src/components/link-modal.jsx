@@ -456,14 +456,14 @@ export default function LinkModal({
               size="sm"
               onClick={() => onOpenChange(false)}
               disabled={loading}
-              className="text-xs border-border-subtle hover:bg-surface-elevated"
+              className="text-xs border-border-subtle hover:bg-surface-elevated active:scale-[0.98] transition-all"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               size="sm"
-              className="bg-primary hover:bg-blue-500 text-white font-medium text-xs shadow-sm shadow-blue-500/25 px-4"
+              className="bg-primary hover:bg-blue-500 text-white font-medium text-xs shadow-sm shadow-blue-500/25 px-4 active:scale-[0.98] transition-all"
               disabled={loading}
             >
               {loading ? (

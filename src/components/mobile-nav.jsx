@@ -71,7 +71,7 @@ export default function MobileNav({onCreateSuccess}) {
           <Button
             size="sm"
             onClick={() => setShowCreateModal(true)}
-            className="h-8 px-2.5 bg-primary hover:bg-blue-500 text-white text-xs gap-1 font-medium"
+            className="h-8 px-2.5 bg-primary hover:bg-blue-500 text-white text-xs gap-1 font-medium active:scale-[0.98] transition-all"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Link</span>
@@ -146,7 +146,7 @@ export default function MobileNav({onCreateSuccess}) {
             <Button
               variant="outline"
               onClick={handleLogout}
-              className="w-full justify-start text-xs text-rose-400 hover:text-rose-300 border-border-subtle hover:bg-rose-500/10 gap-2 h-9"
+              className="w-full justify-start text-xs text-rose-400 hover:text-rose-300 border-border-subtle hover:bg-rose-500/10 gap-2 h-9 active:scale-[0.98] transition-all"
             >
               <LogOut className="h-3.5 w-3.5" />
               <span>Sign Out</span>

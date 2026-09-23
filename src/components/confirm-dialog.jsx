@@ -45,7 +45,7 @@ export default function ConfirmDialog({
             size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="text-xs border-border-subtle hover:bg-surface-hover"
+            className="text-xs border-border-subtle hover:bg-surface-hover active:scale-[0.98] transition-all"
           >
             Cancel
           </Button>
@@ -55,7 +55,7 @@ export default function ConfirmDialog({
             size="sm"
             onClick={onConfirm}
             disabled={isLoading}
-            className="text-xs font-semibold shadow-sm"
+            className="text-xs font-semibold shadow-sm active:scale-[0.98] transition-all"
           >
             {isLoading ? <BeatLoader size={6} color="white" /> : confirmText}
           </Button>

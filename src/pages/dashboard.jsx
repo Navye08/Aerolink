@@ -21,7 +21,7 @@ import LinkModal from "@/components/link-modal";
 import LinkCard from "@/components/link-card";
 import EmptyState from "@/components/empty-state";
 import {
-  MetricCardSkeleton,
+  MetricRibbonSkeleton,
   LinkRowSkeleton,
   ChartSkeleton,
 } from "@/components/skeleton-loader";
@@ -223,114 +223,113 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          {activeTab === "links" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => exportClicksToCsv(effectiveClicks, "aerolink-all-clicks.csv")}
-              disabled={!effectiveClicks || effectiveClicks.length === 0}
-              className="text-xs font-medium border-border-subtle hover:bg-surface-elevated text-muted-foreground hover:text-foreground gap-1.5 h-9"
-            >
-              <Download className="h-3.5 w-3.5" />
-              <span>Export CSV</span>
-            </Button>
-          )}
-
           <Button
             onClick={() => {
               setCreateModalInitialData(null);
               setIsCreateModalOpen(true);
             }}
-            className="bg-blue-600 hover:bg-blue-500 text-white font-semibold gap-1.5 shadow-md shadow-blue-500/20"
+            className="bg-primary hover:bg-blue-500 text-white font-medium text-xs h-9 px-4 gap-2 shadow-sm shadow-blue-500/25 transition-all active:scale-[0.98]"
           >
-            <Plus className="h-4 w-4" />
-            Create Link
+            <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
+            <span>Create Link</span>
           </Button>
         </div>
       </div>
 
-      {/* 2. REFINED METRIC TILES */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {loading ? (
-          <>
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-          </>
-        ) : (
-          <>
-            {/* Metric 1: Total Clicks */}
-            <div className="p-4 bg-surface border border-border-subtle rounded-xl hover:border-border-strong transition-colors">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
-                <span className="text-xs font-medium">Total Clicks</span>
-                <TrendingUp className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
-                {(effectiveClicks.length).toLocaleString()}
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                All-time visitors tracked
-              </p>
+      {/* 2. COMPACT UNIFIED METRIC RIBBON */}
+      {loading ? (
+        <MetricRibbonSkeleton />
+      ) : (
+        <div className="bg-surface border border-border-subtle rounded-xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x divide-border-subtle grid grid-cols-2 lg:grid-cols-4 shadow-2xs">
+          {/* Metric 1: Total Clicks */}
+          <div className="p-3.5 sm:p-4 hover:bg-surface-elevated/40 transition-colors">
+            <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">
+                Total Clicks
+              </span>
+              <TrendingUp className="h-3.5 w-3.5 text-primary/80" />
             </div>
-
-            {/* Metric 2: Active Links */}
-            <div className="p-4 bg-surface border border-border-subtle rounded-xl hover:border-border-strong transition-colors">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
-                <span className="text-xs font-medium">Active Links</span>
-                <Link2 className="h-3.5 w-3.5 text-emerald-400" />
-              </div>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums flex items-baseline gap-1.5">
-                <span>{activeLinksCount}</span>
-                <span className="text-xs text-muted-foreground font-normal">
-                  / {links?.length || 0}
-                </span>
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Routing traffic normally
-              </p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums tracking-tight">
+                {effectiveClicks.length.toLocaleString()}
+              </span>
+              <span className="text-[10px] text-muted-foreground font-mono">tracked</span>
             </div>
+            <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
+              All-time visitors tracked
+            </p>
+          </div>
 
-            {/* Metric 3: Unique Visitors */}
-            <div className="p-4 bg-surface border border-border-subtle rounded-xl hover:border-border-strong transition-colors">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
-                <span className="text-xs font-medium">Unique Visitors</span>
-                <Zap className="h-3.5 w-3.5 text-violet-400" />
-              </div>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
+          {/* Metric 2: Active Links */}
+          <div className="p-3.5 sm:p-4 hover:bg-surface-elevated/40 transition-colors">
+            <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">
+                Active Links
+              </span>
+              <Link2 className="h-3.5 w-3.5 text-emerald-400/80" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums tracking-tight">
+                {activeLinksCount}
+              </span>
+              <span className="text-xs text-muted-foreground/70 font-mono">
+                / {links?.length || 0}
+              </span>
+            </div>
+            <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
+              Routing traffic normally
+            </p>
+          </div>
+
+          {/* Metric 3: Unique Visitors */}
+          <div className="p-3.5 sm:p-4 hover:bg-surface-elevated/40 transition-colors">
+            <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">
+                Unique Visitors
+              </span>
+              <Zap className="h-3.5 w-3.5 text-violet-400/80" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums tracking-tight">
                 {analyticsData.uniqueVisitors.toLocaleString()}
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Privacy-hashed devices
-              </p>
+              </span>
+              <span className="text-[10px] text-muted-foreground font-mono">devices</span>
             </div>
+            <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
+              Privacy-hashed visitors
+            </p>
+          </div>
 
-            {/* Metric 4: Clicks Today */}
-            <div className="p-4 bg-surface border border-border-subtle rounded-xl hover:border-border-strong transition-colors">
-              <div className="flex items-center justify-between text-muted-foreground mb-1">
-                <span className="text-xs font-medium">Clicks Today</span>
-                <BarChart3 className="h-3.5 w-3.5 text-amber-400" />
-              </div>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums">
-                {analyticsData.clicksToday.toLocaleString()}
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Past 24 hour velocity
-              </p>
+          {/* Metric 4: Clicks Today */}
+          <div className="p-3.5 sm:p-4 hover:bg-surface-elevated/40 transition-colors">
+            <div className="flex items-center justify-between text-muted-foreground mb-1">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">
+                Clicks Today
+              </span>
+              <BarChart3 className="h-3.5 w-3.5 text-amber-400/80" />
             </div>
-          </>
-        )}
-      </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl sm:text-2xl font-bold font-mono text-foreground tabular-nums tracking-tight">
+                {analyticsData.clicksToday.toLocaleString()}
+              </span>
+              <span className="text-[10px] text-muted-foreground font-mono">past 24h</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
+              Recent visitor engagement
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* 3. VIEW SELECTOR TABS (Overview, Links, Analytics) */}
-      <div className="flex items-center gap-1 border-b border-border-subtle pb-3">
+      <div className="flex items-center gap-1 p-1 bg-surface border border-border-subtle rounded-xl w-fit shadow-2xs">
         <button
           type="button"
           onClick={() => switchTab("overview")}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
             activeTab === "overview"
-              ? "bg-primary/10 text-primary font-semibold shadow-xs"
-              : "text-muted-foreground hover:text-foreground hover:bg-surface-elevated"
+              ? "bg-surface-elevated text-foreground font-semibold shadow-xs border border-border-subtle/80"
+              : "text-muted-foreground hover:text-foreground hover:bg-surface-hover/50"
           }`}
         >
           <Layers className="h-3.5 w-3.5" />
@@ -342,13 +341,13 @@ export default function Dashboard() {
           onClick={() => switchTab("links")}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
             activeTab === "links"
-              ? "bg-primary/10 text-primary font-semibold shadow-xs"
-              : "text-muted-foreground hover:text-foreground hover:bg-surface-elevated"
+              ? "bg-surface-elevated text-foreground font-semibold shadow-xs border border-border-subtle/80"
+              : "text-muted-foreground hover:text-foreground hover:bg-surface-hover/50"
           }`}
         >
           <Link2 className="h-3.5 w-3.5" />
           <span>My Links</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-elevated text-muted-foreground font-mono">
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface text-muted-foreground font-mono border border-border-subtle">
             {links?.length || 0}
           </span>
         </button>
@@ -358,8 +357,8 @@ export default function Dashboard() {
           onClick={() => switchTab("analytics")}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
             activeTab === "analytics"
-              ? "bg-primary/10 text-primary font-semibold shadow-xs"
-              : "text-muted-foreground hover:text-foreground hover:bg-surface-elevated"
+              ? "bg-surface-elevated text-foreground font-semibold shadow-xs border border-border-subtle/80"
+              : "text-muted-foreground hover:text-foreground hover:bg-surface-hover/50"
           }`}
         >
           <BarChart3 className="h-3.5 w-3.5" />
@@ -520,36 +519,47 @@ export default function Dashboard() {
       )}
 
       {/* ==================================================================== */}
+      {/* ==================================================================== */}
       {/* TAB 2: MY LINKS MANAGEMENT */}
       {/* ==================================================================== */}
       {activeTab === "links" && (
-        <div className="space-y-4 animate-fade-in">
-          {/* Dense Search & Filter Toolbar */}
-          <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+        <div className="space-y-3.5 animate-fade-in">
+          {/* Unified Compact Toolbar */}
+          <div className="p-1.5 sm:p-2 bg-surface border border-border-subtle rounded-xl flex flex-col md:flex-row gap-2 items-stretch md:items-center justify-between shadow-2xs">
             {/* Search Input */}
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <div className="relative flex-1 min-w-[180px] max-w-full md:max-w-xs lg:max-w-sm">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
               <Input
                 type="text"
                 placeholder="Search title, alias, or URL..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 text-xs bg-surface border-border-subtle rounded-lg focus-visible:ring-primary"
+                className="pl-8 pr-7 h-8 text-xs bg-surface-elevated/40 border-border-subtle rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary placeholder:text-muted-foreground/60 transition-colors"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-[10px] bg-surface-elevated rounded px-1 transition-colors"
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
-            {/* Filter Pills & Sort Selects */}
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* Status Filter Pills */}
-              <div className="inline-flex items-center p-0.5 bg-surface border border-border-subtle rounded-lg text-xs">
+            {/* Filter Pills, Tag Select, Sort, and Export */}
+            <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+              {/* Status Filter Segmented Control */}
+              <div className="inline-flex items-center p-0.5 bg-surface-elevated/60 border border-border-subtle rounded-lg text-xs">
                 {["all", "active", "disabled", "expired"].map((st) => (
                   <button
                     key={st}
                     type="button"
                     onClick={() => setStatusFilter(st)}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium capitalize transition-colors ${
+                    className={`px-2 py-1 rounded-md text-[11px] font-medium capitalize transition-all ${
                       statusFilter === st
-                        ? "bg-surface-elevated text-foreground font-semibold shadow-xs"
+                        ? "bg-surface text-foreground font-semibold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -560,16 +570,18 @@ export default function Dashboard() {
 
               {/* Tag Filter */}
               {allTags.length > 0 && (
-                <div className="flex items-center gap-1 bg-surface border border-border-subtle px-2 py-1 rounded-lg text-xs text-muted-foreground">
-                  <Filter className="h-3 w-3" />
+                <div className="flex items-center gap-1 bg-surface-elevated/60 border border-border-subtle px-2 h-8 rounded-lg text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  <Filter className="h-3 w-3 flex-shrink-0" />
                   <select
                     value={selectedTag}
                     onChange={(e) => setSelectedTag(e.target.value)}
-                    className="bg-transparent border-none text-foreground text-xs focus:outline-none cursor-pointer"
+                    className="bg-transparent border-none text-foreground text-xs focus:outline-none cursor-pointer pr-1"
                   >
-                    <option value="all">All Tags</option>
+                    <option value="all" className="bg-surface-elevated text-foreground">
+                      All Tags
+                    </option>
                     {allTags.map((t) => (
-                      <option key={t} value={t}>
+                      <option key={t} value={t} className="bg-surface-elevated text-foreground">
                         #{t}
                       </option>
                     ))}
@@ -578,21 +590,91 @@ export default function Dashboard() {
               )}
 
               {/* Sort Dropdown */}
-              <div className="flex items-center gap-1 bg-surface border border-border-subtle px-2 py-1 rounded-lg text-xs text-muted-foreground">
-                <ArrowUpDown className="h-3 w-3" />
+              <div className="flex items-center gap-1 bg-surface-elevated/60 border border-border-subtle px-2 h-8 rounded-lg text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowUpDown className="h-3 w-3 flex-shrink-0" />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-transparent border-none text-foreground text-xs focus:outline-none cursor-pointer"
+                  className="bg-transparent border-none text-foreground text-xs focus:outline-none cursor-pointer pr-1"
                 >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="most_clicks">Most Clicks</option>
-                  <option value="least_clicks">Least Clicks</option>
+                  <option value="newest" className="bg-surface-elevated text-foreground">
+                    Newest
+                  </option>
+                  <option value="oldest" className="bg-surface-elevated text-foreground">
+                    Oldest
+                  </option>
+                  <option value="most_clicks" className="bg-surface-elevated text-foreground">
+                    Most Clicks
+                  </option>
+                  <option value="least_clicks" className="bg-surface-elevated text-foreground">
+                    Least Clicks
+                  </option>
                 </select>
               </div>
+
+              {/* CSV Export Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => exportClicksToCsv(effectiveClicks, "aerolink-all-clicks.csv")}
+                disabled={effectiveClicks.length === 0}
+                className="h-8 px-2.5 text-xs border-border-subtle hover:bg-surface-elevated text-muted-foreground hover:text-foreground gap-1.5 rounded-lg active:scale-[0.98] transition-all"
+                title="Export clicks telemetry to CSV"
+              >
+                <Download className="h-3 w-3 flex-shrink-0" />
+                <span className="hidden lg:inline text-[11px]">CSV</span>
+              </Button>
             </div>
           </div>
+
+          {/* Active Filter Badges & Reset */}
+          {(searchQuery || statusFilter !== "all" || selectedTag !== "all") && (
+            <div className="flex items-center justify-between px-1 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span>
+                  Showing {filteredLinks.length} of {links?.length || 0} links
+                </span>
+                {statusFilter !== "all" && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-elevated text-[11px] text-foreground border border-border-subtle capitalize">
+                    Status: {statusFilter}
+                  </span>
+                )}
+                {selectedTag !== "all" && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-elevated text-[11px] text-foreground border border-border-subtle">
+                    Tag: #{selectedTag}
+                  </span>
+                )}
+                {searchQuery && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-elevated text-[11px] text-foreground border border-border-subtle">
+                    &quot;{searchQuery}&quot;
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("all");
+                  setSelectedTag("all");
+                }}
+                className="text-[11px] text-primary hover:underline font-medium flex-shrink-0"
+              >
+                Reset filters
+              </button>
+            </div>
+          )}
+
+          {/* Desktop Table Column Header */}
+          {!loading && links && links.length > 0 && filteredLinks.length > 0 && (
+            <div className="hidden md:grid grid-cols-[minmax(0,2.2fr)_minmax(0,1.8fr)_100px_90px_76px] lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.8fr)_100px_90px_70px_76px] items-center gap-4 px-4 py-1.5 text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider select-none">
+              <div className="pl-1">Link Title & Details</div>
+              <div>Slug & Target</div>
+              <div>Status</div>
+              <div className="text-right">Clicks</div>
+              <div className="text-right hidden lg:block">Created</div>
+              <div className="text-right pr-2">Actions</div>
+            </div>
+          )}
 
           {/* Links Data Table / Rows */}
           <div className="space-y-2">
@@ -605,16 +687,28 @@ export default function Dashboard() {
               </div>
             ) : filteredLinks.length === 0 ? (
               <EmptyState
-                title={searchQuery ? "No matching links found" : "No links in this view"}
+                title={
+                  searchQuery || statusFilter !== "all" || selectedTag !== "all"
+                    ? "No matching links found"
+                    : "No links in this view"
+                }
                 description={
-                  searchQuery
-                    ? "Try adjusting your search keywords or resetting your active filters."
+                  searchQuery || statusFilter !== "all" || selectedTag !== "all"
+                    ? "Try adjusting your search keywords, status filters, or active tags."
                     : "Create a new short link to start tracking engagement and analytics."
                 }
-                actionLabel={searchQuery ? "Clear Search" : "Create Link"}
+                actionLabel={
+                  searchQuery || statusFilter !== "all" || selectedTag !== "all"
+                    ? "Reset Filters"
+                    : "Create Link"
+                }
                 onAction={
-                  searchQuery
-                    ? () => setSearchQuery("")
+                  searchQuery || statusFilter !== "all" || selectedTag !== "all"
+                    ? () => {
+                        setSearchQuery("");
+                        setStatusFilter("all");
+                        setSelectedTag("all");
+                      }
                     : () => {
                         setCreateModalInitialData(null);
                         setIsCreateModalOpen(true);

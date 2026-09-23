@@ -64,7 +64,7 @@ export default function LandingPage() {
         {/* Hero Title */}
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground mb-5 leading-[1.12]">
           Short links with <br className="hidden sm:inline" />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-indigo-300">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-primary">
             more control.
           </span>
         </h1>
@@ -94,7 +94,7 @@ export default function LandingPage() {
           </div>
           <Button
             type="submit"
-            className="h-11 px-6 bg-primary hover:bg-blue-500 text-white font-medium text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 transition-transform active:scale-95"
+            className="h-11 px-6 bg-primary hover:bg-blue-500 text-white font-medium text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
           >
             <span>Shorten link</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -139,55 +139,70 @@ export default function LandingPage() {
 
           {/* Interactive UI Dashboard Preview */}
           <div className="p-4 sm:p-6 bg-background space-y-4">
-            {/* Metric row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3 rounded-lg bg-surface border border-border-subtle">
-                <span className="text-[11px] text-muted-foreground block">Total Clicks</span>
-                <span className="text-lg font-bold font-mono text-foreground">12,840</span>
+            {/* Metric Ribbon Preview */}
+            <div className="bg-surface border border-border-subtle rounded-xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x divide-border-subtle grid grid-cols-2 sm:grid-cols-4 shadow-2xs">
+              <div className="p-3">
+                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground block">
+                  Total Clicks
+                </span>
+                <span className="text-base sm:text-lg font-bold font-mono text-foreground tabular-nums">
+                  12,840
+                </span>
               </div>
-              <div className="p-3 rounded-lg bg-surface border border-border-subtle">
-                <span className="text-[11px] text-muted-foreground block">Active Links</span>
-                <span className="text-lg font-bold font-mono text-emerald-400">18 / 20</span>
+              <div className="p-3">
+                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground block">
+                  Active Links
+                </span>
+                <span className="text-base sm:text-lg font-bold font-mono text-emerald-400 tabular-nums">
+                  18 / 20
+                </span>
               </div>
-              <div className="p-3 rounded-lg bg-surface border border-border-subtle">
-                <span className="text-[11px] text-muted-foreground block">Unique Visitors</span>
-                <span className="text-lg font-bold font-mono text-violet-400">9,412</span>
+              <div className="p-3">
+                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground block">
+                  Unique Visitors
+                </span>
+                <span className="text-base sm:text-lg font-bold font-mono text-violet-400 tabular-nums">
+                  9,412
+                </span>
               </div>
-              <div className="p-3 rounded-lg bg-surface border border-border-subtle">
-                <span className="text-[11px] text-muted-foreground block">Clicks Today</span>
-                <span className="text-lg font-bold font-mono text-amber-400">428</span>
+              <div className="p-3">
+                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground block">
+                  Clicks Today
+                </span>
+                <span className="text-base sm:text-lg font-bold font-mono text-amber-400 tabular-nums">
+                  428
+                </span>
               </div>
             </div>
 
-            {/* Preview link row */}
-            <div className="p-3.5 bg-surface border border-border-subtle rounded-xl flex items-center justify-between text-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                  <Globe className="h-3.5 w-3.5" />
+            {/* Strict Grid Link Row Preview */}
+            <div className="hidden sm:grid grid-cols-[minmax(0,2.2fr)_minmax(0,1.8fr)_90px_80px_70px] items-center gap-3 p-3 bg-surface border border-border-subtle rounded-xl text-xs shadow-2xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
+                  <Globe className="h-3 w-3" />
                 </div>
-                <div>
-                  <div className="font-semibold text-foreground flex items-center gap-2">
-                    <span>Developer Portfolio 2026</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-                      Active
-                    </span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 font-medium">
-                      Protected
-                    </span>
-                  </div>
-                  <span className="font-mono text-primary text-[11px]">
-                    aerolink.in/portfolio
-                  </span>
+                <div className="min-w-0">
+                  <div className="font-semibold text-foreground truncate">Engineering Portfolio 2026</div>
+                  <div className="text-[10px] text-muted-foreground truncate">#portfolio • #production</div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="font-mono font-semibold text-foreground text-xs">
-                  3,124 <span className="font-sans font-normal text-muted-foreground">clicks</span>
+              <div className="min-w-0">
+                <span className="font-mono text-primary text-xs">/portfolio</span>
+                <div className="text-[10px] text-muted-foreground truncate">github.com/developer/portfolio</div>
+              </div>
+              <div>
+                <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                  Active
                 </span>
+              </div>
+              <div className="text-right font-mono font-semibold text-foreground text-xs tabular-nums">
+                3,124 <span className="font-sans font-normal text-muted-foreground text-[10px]">clicks</span>
+              </div>
+              <div className="text-right">
                 <Button
                   size="sm"
                   onClick={() => navigate("/dashboard")}
-                  className="h-7 text-xs bg-surface-elevated hover:bg-surface border border-border-subtle text-foreground"
+                  className="h-6 px-2 text-[11px] bg-surface-elevated hover:bg-surface border border-border-subtle text-foreground active:scale-[0.98] transition-all"
                 >
                   Inspect
                 </Button>
@@ -197,76 +212,123 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3. PRODUCT CAPABILITIES (VARIED LAYOUT BENTO GRID) */}
+      {/* 3. PRODUCT CAPABILITIES (ASYMMETRIC BENTO GRID) */}
       <section id="features" className="w-full max-w-5xl space-y-8">
         <div className="text-center max-w-lg mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Engineered for precision and control
           </h2>
           <p className="text-xs text-muted-foreground mt-2">
-            Every feature is designed to give you complete governance over routing, security, and attribution.
+            Every capability is designed to give you complete governance over routing, security, and attribution.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: Passcode Protection */}
-          <div className="p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4">
-            <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
-              <Lock className="h-5 w-5" />
+          {/* Card 1: Passcode Protection (Spans 2 columns on desktop) */}
+          <div className="md:col-span-2 p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4 shadow-2xs">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-500/10 text-violet-400 text-[10px] font-medium border border-violet-500/20 mb-2">
+                  <Lock className="h-3 w-3" />
+                  <span>Zero-Knowledge Gate</span>
+                </div>
+                <h3 className="text-base font-semibold text-foreground">
+                  Server-Side Passcode Verification
+                </h3>
+                <p className="text-muted-foreground text-xs leading-relaxed max-w-md">
+                  Protect sensitive previews, staging deployments, or private files behind a cryptographic challenge. Passcodes are hashed with SHA-256 before verification; the database hash is never exposed to the client.
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 flex-shrink-0">
+                <Lock className="h-5 w-5" />
+              </div>
             </div>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground mb-1">
-                Passcode Protected Links
-              </h3>
-              <p className="text-muted-foreground text-xs leading-relaxed">
-                Require a password before redirecting visitors. Verified server-side via PostgreSQL RPC so password hashes are never exposed.
-              </p>
-            </div>
-            <div className="text-[11px] font-mono text-violet-400 bg-violet-500/10 p-2 rounded-lg border border-violet-500/20">
-              RPC verify_link_password()
+
+            {/* Interactive Visual Shell */}
+            <div className="p-3 rounded-xl bg-surface-elevated border border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="text-emerald-400 font-semibold">POST</span>
+                <span className="text-foreground">/rest/v1/rpc/verify_link_password</span>
+              </div>
+              <div className="text-[11px] px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                Status: 200 OK • SHA-256 Match
+              </div>
             </div>
           </div>
 
           {/* Card 2: Lifecycle Governance */}
-          <div className="p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-              <Clock className="h-5 w-5" />
-            </div>
+          <div className="p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4 shadow-2xs">
             <div>
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
+                <Clock className="h-5 w-5" />
+              </div>
               <h3 className="text-sm font-semibold text-foreground mb-1">
                 Expiration Dates & Quota Caps
               </h3>
               <p className="text-muted-foreground text-xs leading-relaxed">
-                Schedule automatic link expiration timestamps or limit total allowed visits. The gateway displays a clean paused screen once reached.
+                Schedule automatic expiration timestamps or limit total allowed visits. Routing safely pauses once limits are reached.
               </p>
             </div>
-            <div className="text-[11px] font-mono text-amber-400 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
-              Cap: 50 visits • ISO timestamps
+            <div className="text-[11px] font-mono text-amber-400 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20 flex items-center justify-between">
+              <span>Quota Cap: 100 visits</span>
+              <span className="text-[10px] text-amber-400/80">Auto-Pause</span>
             </div>
           </div>
 
-          {/* Card 3: Client-Side QR Studio */}
-          <div className="p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-              <QrCode className="h-5 w-5" />
-            </div>
+          {/* Card 3: In-Browser Vector QR Studio */}
+          <div className="p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4 shadow-2xs">
             <div>
+              <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4">
+                <QrCode className="h-5 w-5" />
+              </div>
               <h3 className="text-sm font-semibold text-foreground mb-1">
                 Vector QR Code Studio
               </h3>
               <p className="text-muted-foreground text-xs leading-relaxed">
-                Render crisp QR assets in-browser without cloud storage upload latency. Download PNGs in 150px, 250px, or 400px resolutions.
+                Render crisp high-resolution QR codes in-browser with zero cloud storage latency. Export at 150px, 250px, or 400px.
               </p>
             </div>
-            <div className="text-[11px] font-mono text-primary bg-primary/10 p-2 rounded-lg border border-primary/20">
-              150px • 250px • 400px PNG
+            <div className="text-[11px] font-mono text-primary bg-primary/10 p-2.5 rounded-lg border border-primary/20 flex items-center justify-between">
+              <span>150px • 250px • 400px</span>
+              <span className="text-[10px] text-primary/80">Vector PNG</span>
+            </div>
+          </div>
+
+          {/* Card 4: GDPR Privacy Telemetry (Spans 2 columns on desktop) */}
+          <div className="md:col-span-2 p-6 rounded-2xl bg-surface border border-border-subtle hover:border-border-strong transition-all flex flex-col justify-between space-y-4 shadow-2xs">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-medium border border-emerald-500/20 mb-2">
+                  <ShieldCheck className="h-3 w-3" />
+                  <span>Zero PII Storage</span>
+                </div>
+                <h3 className="text-base font-semibold text-foreground">
+                  Privacy-Preserving Telemetry
+                </h3>
+                <p className="text-muted-foreground text-xs leading-relaxed max-w-md">
+                  AeroLink never stores raw IP addresses. Unique visitor devices are aggregated using an irreversible salted cryptographic hash, delivering deep device and country intelligence without violating user privacy.
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-surface-elevated border border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
+              <div className="flex items-center gap-2 text-muted-foreground truncate">
+                <span className="text-muted-foreground/60">Hash:</span>
+                <span className="text-foreground truncate max-w-xs">SHA256(IP + Salt + UserAgent)</span>
+              </div>
+              <div className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex-shrink-0">
+                100% GDPR Compliant
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* 4. SECURITY & PRIVACY SECTION */}
-      <section id="security" className="w-full max-w-5xl p-6 sm:p-8 rounded-2xl bg-surface border border-border-subtle flex flex-col md:flex-row items-center justify-between gap-6">
+      <section id="security" className="w-full max-w-5xl p-6 sm:p-8 rounded-2xl bg-surface border border-border-subtle flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xs">
         <div className="space-y-2 max-w-lg">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-medium border border-emerald-500/20">
             <ShieldCheck className="h-3 w-3" />
@@ -283,7 +345,7 @@ export default function LandingPage() {
         <div className="flex flex-col gap-2 w-full md:w-auto">
           <Button
             onClick={() => navigate("/auth")}
-            className="bg-primary hover:bg-blue-500 text-white text-xs font-medium h-9 px-5 shadow-sm shadow-blue-500/25"
+            className="bg-primary hover:bg-blue-500 text-white text-xs font-medium h-9 px-5 shadow-sm shadow-blue-500/25 active:scale-[0.98] transition-all"
           >
             Create your account
           </Button>
@@ -343,16 +405,16 @@ export default function LandingPage() {
       </section>
 
       {/* 6. CONCISE FINAL CTA */}
-      <section className="w-full max-w-3xl p-8 rounded-2xl bg-surface border border-border-strong text-center flex flex-col items-center space-y-3">
+      <section className="w-full max-w-3xl p-8 rounded-2xl bg-surface border border-border-strong text-center flex flex-col items-center space-y-3 shadow-xl">
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">
           Ready to manage your links with precision?
         </h2>
         <p className="text-xs text-muted-foreground max-w-md leading-relaxed">
-          Join thousands of developers and creators using AeroLink for fast, protected, and insightful short URLs.
+          Deploy custom branded slugs, enforce passcode verification, and capture privacy-preserving telemetry in seconds.
         </p>
         <Button
           onClick={() => navigate("/auth")}
-          className="h-10 px-6 bg-primary hover:bg-blue-500 text-white text-xs font-medium rounded-xl shadow-md shadow-blue-500/25 mt-2"
+          className="h-10 px-6 bg-primary hover:bg-blue-500 text-white text-xs font-medium rounded-xl shadow-md shadow-blue-500/25 mt-2 active:scale-[0.98] transition-all"
         >
           Start shortening links
         </Button>

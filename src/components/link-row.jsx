@@ -62,29 +62,30 @@ export default function LinkRow({
   };
 
   return (
-    <div className="hidden md:flex items-center justify-between px-4 py-3 bg-surface hover:bg-surface-elevated/70 border border-border-subtle hover:border-border-strong rounded-xl transition-all group">
-      {/* 1. Left: Favicon, Title, Short Link & Destination */}
-      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-4">
+    <div className="hidden md:grid grid-cols-[minmax(0,2.2fr)_minmax(0,1.8fr)_100px_90px_76px] lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.8fr)_100px_90px_70px_76px] items-center gap-4 px-4 py-3 bg-surface hover:bg-surface-elevated/70 border border-border-subtle hover:border-border-strong rounded-xl transition-colors group shadow-xs">
+      {/* 1. Link Title, Favicon & Tags */}
+      <div className="flex items-center gap-3 min-w-0 pr-2">
         {/* Favicon or Fallback Icon */}
-        <div className="w-8 h-8 rounded-lg bg-surface-elevated border border-border-subtle flex items-center justify-center flex-shrink-0 text-muted-foreground overflow-hidden">
+        <div className="w-7 h-7 rounded-lg bg-surface-elevated border border-border-subtle flex items-center justify-center flex-shrink-0 text-muted-foreground overflow-hidden shadow-2xs">
           {!faviconError ? (
             <img
               src={`https://www.google.com/s2/favicons?domain=${destinationHost}&sz=32`}
               alt=""
-              className="w-4 h-4 object-contain"
+              className="w-3.5 h-3.5 object-contain"
               onError={() => setFaviconError(true)}
             />
           ) : (
-            <Globe className="h-4 w-4" />
+            <Globe className="h-3.5 w-3.5" />
           )}
         </div>
 
         {/* Link Information */}
         <div className="flex-1 min-w-0 space-y-0.5">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <Link
               to={`/link/${url.id}`}
-              className="text-xs font-semibold text-foreground hover:text-primary transition-colors truncate max-w-[280px]"
+              className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors truncate block"
+              title={url.title || destinationHost}
             >
               {url.title || destinationHost}
             </Link>
@@ -92,42 +93,29 @@ export default function LinkRow({
             {/* Password Protected Pill */}
             {url.password_hash && (
               <span
-                className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-violet-500/10 text-violet-400 border border-violet-500/20"
-                title="Password protected"
+                className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-violet-500/10 text-violet-400 border border-violet-500/20 flex-shrink-0"
+                title="Passcode protected"
               >
                 <Lock className="h-2.5 w-2.5" />
-                <span>Protected</span>
+                <span className="hidden xl:inline">Protected</span>
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground">
-            {/* Short URL with copy */}
-            <span className="font-mono text-primary font-medium hover:underline cursor-pointer" onClick={() => window.open(fullShortUrl, "_blank")}>
-              /{url.custom_url || url.short_url}
-            </span>
-
-            <span>•</span>
-
-            {/* Destination URL */}
-            <a
-              href={url.original_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-foreground flex items-center gap-1 truncate max-w-[220px]"
-              title={url.original_url}
-            >
-              <span className="truncate">{destinationHost}</span>
-              <ExternalLink className="h-2.5 w-2.5 opacity-60 flex-shrink-0" />
-            </a>
-
-            {/* Tags preview */}
-            {Array.isArray(url.tags) && url.tags.length > 0 && (
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground truncate">
+            {Array.isArray(url.tags) && url.tags.length > 0 ? (
+              <span className="truncate text-muted-foreground/80 font-medium">
+                #{url.tags[0]}
+                {url.tags.length > 1 && ` +${url.tags.length - 1}`}
+              </span>
+            ) : (
+              <span className="text-muted-foreground/40">No tags</span>
+            )}
+            {url.notes && (
               <>
-                <span>•</span>
-                <span className="text-[10px] text-muted-foreground/80 truncate max-w-[120px]">
-                  #{url.tags[0]}
-                  {url.tags.length > 1 && ` +${url.tags.length - 1}`}
+                <span className="text-muted-foreground/30">•</span>
+                <span className="truncate text-muted-foreground/60" title={url.notes}>
+                  {url.notes}
                 </span>
               </>
             )}
@@ -135,23 +123,48 @@ export default function LinkRow({
         </div>
       </div>
 
-      {/* 2. Middle: Status & Click Metric */}
-      <div className="flex items-center gap-5 flex-shrink-0 pr-2">
-        {/* Status Badge */}
-        <StatusBadge status={statusInfo.status} size="sm" />
-
-        {/* Tabular Click Counter */}
-        <div className="text-right min-w-[70px]">
-          <span className="text-xs font-semibold text-foreground font-mono tabular-nums">
-            {clickCount.toLocaleString()}
-          </span>
-          <span className="text-[10px] text-muted-foreground block leading-none">
-            clicks
+      {/* 2. Routing Target & Short Slug */}
+      <div className="min-w-0 space-y-0.5 pr-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span
+            onClick={() => window.open(fullShortUrl, "_blank")}
+            className="font-mono text-xs text-primary font-medium hover:underline cursor-pointer truncate"
+            title="Open short link"
+          >
+            /{url.custom_url || url.short_url}
           </span>
         </div>
 
-        {/* Created Date */}
-        <span className="text-[11px] text-muted-foreground/70 hidden lg:inline-block min-w-[75px] text-right font-mono">
+        <a
+          href={url.original_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 truncate max-w-[210px] transition-colors"
+          title={url.original_url}
+        >
+          <span className="truncate">{destinationHost}</span>
+          <ExternalLink className="h-2.5 w-2.5 opacity-60 flex-shrink-0" />
+        </a>
+      </div>
+
+      {/* 3. Status Badge */}
+      <div className="flex items-center min-w-[95px]">
+        <StatusBadge status={statusInfo.status} size="sm" />
+      </div>
+
+      {/* 4. Tabular Click Counter */}
+      <div className="text-right">
+        <span className="text-xs font-semibold text-foreground font-mono tabular-nums block">
+          {clickCount.toLocaleString()}
+        </span>
+        <span className="text-[10px] text-muted-foreground block leading-none">
+          clicks
+        </span>
+      </div>
+
+      {/* 5. Created Date (Desktop Only) */}
+      <div className="text-right hidden lg:block">
+        <span className="text-[11px] text-muted-foreground/70 font-mono">
           {new Date(url.created_at).toLocaleDateString([], {
             month: "short",
             day: "numeric",
@@ -159,15 +172,16 @@ export default function LinkRow({
         </span>
       </div>
 
-      {/* 3. Right: Intentional Primary Actions + Overflow Menu */}
-      <div className="flex items-center gap-1.5 flex-shrink-0">
-        {/* Primary Action 1: Copy Link */}
+      {/* 6. Intentional Actions (Copy + Analytics + Overflow) */}
+      <div className="flex items-center justify-end gap-1">
+        {/* Copy Link */}
         <Button
           variant="ghost"
           size="icon"
           onClick={handleCopy}
-          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-surface-elevated rounded-lg"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-surface-elevated rounded-lg"
           title="Copy short URL"
+          aria-label="Copy short link"
         >
           {copied ? (
             <Check className="h-3.5 w-3.5 text-emerald-400" />
@@ -176,13 +190,14 @@ export default function LinkRow({
           )}
         </Button>
 
-        {/* Primary Action 2: Analytics Link */}
+        {/* Analytics Link */}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => navigate(`/link/${url.id}`)}
-          className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-surface-elevated rounded-lg"
+          className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-surface-elevated rounded-lg"
           title="View analytics"
+          aria-label="View analytics"
         >
           <BarChart2 className="h-3.5 w-3.5" />
         </Button>
@@ -193,9 +208,10 @@ export default function LinkRow({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-surface-elevated rounded-lg"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-surface-elevated rounded-lg"
+              aria-label="More link actions"
             >
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreHorizontal className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
